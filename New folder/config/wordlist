@@ -1,0 +1,8 @@
+名词词表#data\n.txt#noun list
+动词词表#data\v.txt#verb list
+及物动词词表#data\vt.txt#transitive verb list
+不及物动词词表#data\vi.txt#intransitive verb list
+连此词表#data\conj.txt#conj list
+介词词表#data\prep.txt#prep list
+代名词词表#data\pron.txt#pron list
+数字词表#data\num.txt#number list
