@@ -13,7 +13,11 @@ namespace SrtTimeModify.src
         
         private List<string> lines = new List<string>();
 
-        
+        public Block mergeBlock(Block other) {
+            this.endTime = other.endTime;
+            this.lines.AddRange(other.getLines());
+            return this;
+        }
         public void addLine(string line)
         {
             lines.Add(line);
@@ -76,11 +80,12 @@ namespace SrtTimeModify.src
         }
         public string genStartEndTime()
         {
-            string str = (startTime.strTime + "-" + endTime.strTime);
+
+            string str = startTime.strTime + "\r\n" + endTime.strTime + "\r\n\r\n";
             str =  str.Replace(',', '.');
             return str;
         }
-         
+        
 
     }
 }
