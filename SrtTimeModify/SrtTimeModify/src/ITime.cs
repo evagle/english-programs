@@ -31,6 +31,10 @@ namespace SrtTimeModify.src
                 this.millSecond = parts[3];
             }
         }
+        public void setMilliSec(String milli) {
+            millSecond = milli;
+            intToString();
+        }
         public ITime amend(int val){
             intTime = intTime + val <= 0 ? 0 : intTime + val;
             intToString();
@@ -41,7 +45,11 @@ namespace SrtTimeModify.src
             strTime += (intTime / 3600).ToString("00") + ":" + ((intTime % 3600) / 60).ToString("00") +":"+ (intTime % 3600 % 60).ToString("00");
             strTime += "," + millSecond;
         }
-         
+        public double sub(ITime otherTime) {
+            double res = intTime - otherTime.intTime;
+            res += (double.Parse(millSecond) - double.Parse(otherTime.millSecond)) / 1000;
+            return res;
+        }
 
     }
 }

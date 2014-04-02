@@ -6,11 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace SrtTimeModify.src
 {
-    class MergeBlankLine
+    class SplitToParagraphs
     {
         public List<string> result = new List<string>();
         
-        public List<string> merge(List<string> srt)
+        public List<string> split(List<string> srt)
         {
             int start = 0;
             List<string> tmp = new List<string>();

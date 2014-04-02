@@ -24,14 +24,7 @@ namespace SrtTimeModify
             if (result == DialogResult.OK) // Test result.
             {
                 this.textBox1.Text = openFileDialog.FileName;
-                string  path = openFileDialog.FileName.Substring(0,openFileDialog.FileName.LastIndexOf("\\"));
-                string name = openFileDialog.FileName.Substring(openFileDialog.FileName.LastIndexOf("\\")+1);
-
-                MergeBlankLine merge = new MergeBlankLine();
-                List<string> list= merge.merge(FileHandler.read(openFileDialog.FileName));
-
-                FileHandler.write(path + "\\分好段-" + name, list);
-                MessageBox.Show("已经输出到：" + path + "\\分好段-" + name);
+               
             }
         }
 
@@ -67,9 +60,10 @@ namespace SrtTimeModify
             string path = fullPath.Substring(0, fullPath.LastIndexOf("\\"));
             string name = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
             List<string> startEndTime = new List<string>();
-            StretchTime stretch = new StretchTime();
-            List<string> list = stretch.stretch(FileHandler.read(fullPath), Convert.ToInt32(this.timeStretched.Text), out startEndTime);
-            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, startEndTime);
+            StretchTime stretch = new StretchTime(FileHandler.read(fullPath), Convert.ToInt32(this.timeStretched.Text),checkBox1.Checked);
+            List<String> list = stretch.stretch(0);
+            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
+           
             FileHandler.write(path + "\\改好时间-" + name, list);
             MessageBox.Show("已经输出到：" + path + "\\改好时间-" + name);
         }
@@ -97,15 +91,16 @@ namespace SrtTimeModify
                 return;
             }
 
-            MergeBlankLine merge = new MergeBlankLine();
-            StretchTime stretch = new StretchTime();
+            SplitToParagraphs merge = new SplitToParagraphs();
+            
             String fullPath = this.textBox3.Text;
             string path = fullPath.Substring(0, fullPath.LastIndexOf("\\"));
             string name = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
-            List<string> startEndTime = new List<string>();
-            List<string> list = merge.merge(FileHandler.read(fullPath));
-            list = stretch.stretch(list, Convert.ToInt32(this.textBox4.Text), out startEndTime);
-            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, startEndTime);
+           
+            List<string> list = merge.split(FileHandler.read(fullPath));
+            StretchTime stretch = new StretchTime(list, Convert.ToInt32(this.textBox4.Text), checkBox2.Checked);
+            list = stretch.stretch(Convert.ToInt32(this.textBoxParagraphSpan2.Text));
+            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
             FileHandler.write(path + "\\改好时间-" + name, list);
             MessageBox.Show("已经输出到：" + path + "\\改好时间-" + name);
         }
@@ -113,6 +108,25 @@ namespace SrtTimeModify
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            String text = this.textBox1.Text;
+            string path = text.Substring(0, text.LastIndexOf("\\"));
+            string name = text.Substring(text.LastIndexOf("\\") + 1);
+
+            SplitToParagraphs merge = new SplitToParagraphs();
+            List<string> list = merge.split(FileHandler.read(text));
+            int secondBetweenParagraphs = int.Parse(this.textBoxParagraphSpan1.Text);
+
+            StretchTime stretch = new StretchTime(list,0,false);
+            stretch.articleToParagraphBlocks();
+            stretch.mergeBlockByTimeSpanBetweenParagraphs(secondBetweenParagraphs);
+
+
+            FileHandler.write(path + "\\分好段-" + name, stretch.getResultArticle());
+            MessageBox.Show("已经输出到：" + path + "\\分好段-" + name);
         }
  
  

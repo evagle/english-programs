@@ -80,7 +80,7 @@
     <Compile Include="src\Block.cs" />
     <Compile Include="src\FileHandler.cs" />
     <Compile Include="src\ITime.cs" />
-    <Compile Include="src\MergeBlankLine.cs" />
+    <Compile Include="src\SplitToParagraphs.cs" />
     <Compile Include="src\StretchTime.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
