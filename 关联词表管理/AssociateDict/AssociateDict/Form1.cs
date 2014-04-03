@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using AssociateDict.src;
 
 namespace AssociateDict
 {
@@ -52,7 +53,30 @@ namespace AssociateDict
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-
+            /*
+            this.tbAssociate.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\关联词表20130829.txt";
+            this.tbAbnormal.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\词表";
+            this.tbOutput.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\输出";
+            */
+            if (this.tbAssociate.Text.Equals(""))
+            {
+                MessageBox.Show("没有选择关联词表");
+                return;
+            }
+            if (this.tbAbnormal.Text.Equals(""))
+            {
+                MessageBox.Show("没有选择不规则词表");
+                return;
+            }
+            if (this.tbOutput.Text.Equals(""))
+            {
+                MessageBox.Show("没有配置输出目录");
+                return;
+            }
+            Main m = new Main();
+            m.main(this.tbAssociate.Text, this.tbAbnormal.Text, this.tbOutput.Text);
+            MessageBox.Show("关联词表配置成功");
+            this.Dispose();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

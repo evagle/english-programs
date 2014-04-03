@@ -30,18 +30,7 @@ namespace SrtTimeModify.src
             }
             writer.Close();
         }
-        public static void writeStartTimeEndTime(String path, List<string> content)
-        {
-            if (content.Count == 0)
-                return;
-            StreamWriter writer = new StreamWriter(path, false, Encoding.GetEncoding("gbk"));
-            for (int i = 0; i < content.Count-1;i++ )
-            {
-                writer.Write(content[i]+",");
-            }
-            writer.Write(content[content.Count - 1]);
-            writer.Close();
-        }
+        
         
     }
 }

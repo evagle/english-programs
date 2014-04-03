@@ -7055,7 +7055,7 @@ inharmonious
 inherent inherently 
 inherit inheritance inherited inheriting inheritor inherits disinherit disinherited disinheriting inheritors
 inhibit inhibited inhibiting inhibition inhibitions inhibitor inhibitors uninhibited inhibitory
-inhuman inhumane inhumanities inhumanity .
+inhuman inhumane inhumanities inhumanity  
 inimical
 inimitable inimitably
 iniquities iniquitous
@@ -11073,7 +11073,7 @@ raucous
 raunchy
 ravage ravaged ravages ravaging
 rave raved raves raving ravings
-ravel raveling Unravel unravels unraveled unraveling .
+ravel raveling Unravel unravels unraveled unraveling 
 Raven ravening Ravens
 ravenous
 ravine ravines
@@ -11814,7 +11814,7 @@ scaffold scaffolding scaffolds
 scalar
 scalawag scalawags
 scald scalded scalding
-scale scaled scales scaling Upscale .
+scale scaled scales scaling Upscale  
 scallion scallions
 scallop scalloped scalloping scallops
 scallywag
@@ -12098,7 +12098,7 @@ Shamrock shamrocks
 shanghai
 shank shanks
 shanties shanty shantytown
-shape reshape reshaped reshapes shaped shapeless Shapelessly shapely shapers shapes shaping reshapeing shaper.
+shape reshape reshaped reshapes shaped shapeless Shapelessly shapely shapers shapes shaping reshapeing shaper
 shard shards
 share Shared shareholder shareholders sharer shares sharing
 sharecropper sharecropping

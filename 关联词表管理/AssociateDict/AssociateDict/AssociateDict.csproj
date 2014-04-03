@@ -78,6 +78,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="src\AssociateModel.cs" />
     <Compile Include="src\FileHandler.cs" />
     <Compile Include="src\Main.cs" />
   </ItemGroup>
