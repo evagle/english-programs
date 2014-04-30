@@ -13,7 +13,18 @@ namespace AssociateDict.src
         //常规的加s、d、ed、ing结尾的派生词
         public HashSet<string> normalDerivates;
         public HashSet<string> otherDerivates;
-         
+        public HashSet<string> otherDerivatesWithoutPrototype;
+
+        public String getOtherDerivatesWithoutPrototype()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            foreach (String s in otherDerivatesWithoutPrototype)
+            {
+                builder.Append(s).Append(" ");
+            }
+            return builder.ToString().TrimEnd();
+        }
         public String getDerivates()
         {
             StringBuilder builder = new StringBuilder();
@@ -51,7 +62,7 @@ namespace AssociateDict.src
             derivates = new HashSet<string>();
             normalDerivates = new HashSet<string>();
             otherDerivates = new HashSet<string>();
-        
+            otherDerivatesWithoutPrototype = new HashSet<string>();
             setDerivatives(words);
         }
         public void setDerivatives(String[] words)
@@ -112,6 +123,7 @@ namespace AssociateDict.src
         /************************************************************************/
         /* 将normalDerivates中的每个单词，判断是不是原型，是就加
          * s,d,ed,ing进行扩展，并且将扩展也加入到normalDerivatives中
+         * 然后扩展后需要从表2中删除
          */
         /************************************************************************/
         public void expandNormalDerivates()
@@ -149,10 +161,68 @@ namespace AssociateDict.src
                 }
 
             }
+            foreach (String w in normalDerivates)
+            {
+                otherDerivates.Remove(w);
+            }
         }
 
+        /************************************************************************/
+        /* 将扩展后的normalDerivative和otherDerivate合并生成总表                                                                     */
+        /************************************************************************/
+        public void mergeDerivates()
+        {
+            foreach (string w in normalDerivates)
+            {
+                derivates.Add(w);
+            }
 
-
+        }
+        /************************************************************************/
+        /* 删除表2中的原形，只要在表一出现过又在表2出现过的就是原形                                                                     */
+        /************************************************************************/
+        public void mergeDerivates2()
+        {
+            foreach (string w in otherDerivates)
+            {
+                if (!normalDerivates.Contains(w))
+                {
+                    otherDerivatesWithoutPrototype.Add(w);
+                    otherDerivatesWithoutPrototype.Add(getPluralForm(w));
+                }
+            }
+        }
+        /************************************************************************/
+        /* 输入单词，得到其复数形式，先简单做，即：
+         * 1.直接加s 
+         * 2.e结尾直接加s
+         * 3.ch结尾直接加es
+         * 4.y结尾去e加ies
+         */
+        /************************************************************************/
+        public string getPluralForm(String word)
+        {
+            if (word.EndsWith("y"))
+            {
+                return word.Substring(0, word.Length - 1) + "ies";
+            }
+            else if (word.EndsWith("ch") ||
+                word.EndsWith("sh") ||
+                word.EndsWith("s") ||
+                word.EndsWith("x"))
+            {
+                return word + "es";
+            }
+            else if (word.EndsWith("f"))
+            {
+                return word.Substring(0, word.Length - 1) + "ves";
+            }
+            else if (word.EndsWith("fe"))
+            {
+                return word.Substring(0, word.Length - 2) + "ves";
+            }else
+                return word + "s";
+        }
         #region IComparable 成员
 
         public int CompareTo(object obj)

@@ -24,17 +24,22 @@ namespace AssociateDict.src
             List<String> allDerivates = new List<String>();
             List<String> normalDerivates = new List<String>();
             List<String> otherDerivates = new List<String>();
-            
+            List<String> otherDerivatesWithoutPrototype = new List<String>();
             System.Collections.IDictionaryEnumerator enumerator = associateDict.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 AssociateModel model = (AssociateModel)enumerator.Value;
                 model.findNoramlAndMove();
                 model.expandNormalDerivates();
+                model.mergeDerivates();
+                model.mergeDerivates2();//生成另一种词表，将2表并入1表，然后要删除2表的原形,放入另一个表
                 allDerivates.Add(model.getDerivates());
                 normalDerivates.Add(model.getNormalDerivates());
                 otherDerivates.Add(model.getOtherDerivates());
- 
+                String tmp = model.getOtherDerivatesWithoutPrototype();
+                if (!tmp.Equals(""))
+                    otherDerivatesWithoutPrototype.Add(tmp);
+                 
             }
             allDerivates.Sort();
             normalDerivates.Sort();
@@ -42,6 +47,9 @@ namespace AssociateDict.src
             FileHandler.write(outputDir + "\\" + "关联词总表.txt", allDerivates);
             FileHandler.write(outputDir + "\\" + "关联词表1.txt", normalDerivates);
             FileHandler.write(outputDir + "\\" + "关联词表2.txt", otherDerivates);
+            FileHandler.write(outputDir + "\\" + "关联词表-普通派生和原形派生分开.txt", normalDerivates);
+            FileHandler.write(outputDir + "\\" + "关联词表-普通派生和原形派生分开.txt", otherDerivatesWithoutPrototype, true);
+
 
         }
         /************************************************************************/

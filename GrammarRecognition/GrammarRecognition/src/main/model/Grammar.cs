@@ -7,18 +7,29 @@ namespace GrammarRecognition.src.main.model
 {
     class Grammar
     {
+        public static int T_GRAMMAR = 1;
+        public static int T_PHRASE = 2;
         private String text;
         private String name;
         private String abbreviation;
         private String[] pattern;
+        private int type;
+
+
         private int seq;
+        public int frequency = 0;
         public Grammar() {
+        }
+        public int Type
+        {
+            get { return type; }
+            set { type = value; }
         }
         public Grammar(Grammar g) {
             this.text = g.Text;
             this.name = g.Name;
             this.abbreviation = g.Abbreviation;
-          
+            this.type = g.type;
             this.Seq = g.Seq;
         }
         public String Text

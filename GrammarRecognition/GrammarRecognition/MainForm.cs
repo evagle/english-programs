@@ -79,6 +79,14 @@ namespace GrammarRecognition
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            //////////////////////////////////////////////////////////////////////////
+            //测试用
+            /*tbPOS.Text = "D:\\刘实-英语项目\\语法识别程序\\词表";
+            tbGrammar.Text = "D:\\刘实-英语项目\\语法识别程序\\语法加固定搭配20140416补充版.txt";
+            tbOutDir.Text = "D:\\刘实-英语项目\\语法识别程序\\结果目录";
+            tbParagraph.Text = "D:\\刘实-英语项目\\语法识别程序\\测试文章";
+            */
+            //////////////////////////////////////////////////////////////////////////
             if (tbPOS.Text == "")
             {
                 MessageBox.Show("请选择词性表所在目录");

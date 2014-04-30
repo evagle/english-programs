@@ -5,6 +5,7 @@ using System.Text;
 using GrammarRecognition.src.main.model;
 using System.IO;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace GrammarRecognition.src.main.logical
 {
@@ -22,17 +23,28 @@ namespace GrammarRecognition.src.main.logical
         }
         public  List<Grammar> getGrammars()
         {
+            HashSet<string> set = new HashSet<string>();
             try
             {
                 StreamReader reader = new StreamReader(path, Encoding.Default);
                 string line = reader.ReadLine();
                 while (line != null)
                 {
+
                     Grammar grammar = new Grammar();
                     String[] parts = line.Split(new char[] { '#'  });
+                    if (set.Contains(parts[2]))
+                    {
+                        Console.WriteLine(parts[2]);
+
+                    }
+                    else
+                        set.Add(parts[2]);
                     if (parts.Length == 5)
                     {
                         grammar = new Grammar();
+                        grammar.Type = Grammar.T_GRAMMAR;
+                        
                         grammar.Text = line;
                         grammar.Name = parts[1];
                         grammar.Abbreviation = parts[2];
@@ -47,15 +59,21 @@ namespace GrammarRecognition.src.main.logical
                         ignoreList.Add("ving");
                         expandGrammar(grammar, ignoreList);
                     }
-                    if (parts.Length == 4)
+                    else if (parts.Length == 4)
                     {
                         grammar = new Grammar();
-                        grammar.Text =line;
+                        grammar.Type = Grammar.T_PHRASE;
+                        
+                        grammar.Text = line;
                         grammar.Name = parts[1];
                         grammar.Abbreviation = parts[1];
                         grammar.Pattern = removeSpace(parts[2].Split(new char[] { '+', ' ' }));
+                         
                         grammar.Seq = Int32.Parse(parts[3]);
                         grammars.Add(grammar);
+                    }
+                    else {
+                        MessageBox.Show("语法格式不对,请先修改：" + line);
                     }
                     line = reader.ReadLine();
                 }
@@ -64,6 +82,7 @@ namespace GrammarRecognition.src.main.logical
             {
             	Console.WriteLine(ex.StackTrace);
             }
+            Console.WriteLine("abbr num:" + set.Count);
             return grammars;
         }
         private String[] removeSpace(String[] strArr)

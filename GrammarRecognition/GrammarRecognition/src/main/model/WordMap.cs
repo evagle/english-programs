@@ -13,6 +13,10 @@ namespace GrammarRecognition.src.main.model
         public void addWordList(String name,HashSet<String> wordList){
             table.Add(name, wordList);
         }
+        public bool hasWordList(String name)
+        {
+            return table.ContainsKey(name);
+        }
         public HashSet<String> getWordList(String name)
         {
             return (HashSet<String>)table[name];

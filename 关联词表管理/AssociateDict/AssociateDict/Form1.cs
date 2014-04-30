@@ -53,8 +53,8 @@ namespace AssociateDict
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            /*
-            this.tbAssociate.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\关联词表20130829.txt";
+            
+           /* this.tbAssociate.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\关联词表20130829.txt";
             this.tbAbnormal.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\词表";
             this.tbOutput.Text = "D:\\gitrepo\\english-programs\\关联词表管理\\输出";
             */

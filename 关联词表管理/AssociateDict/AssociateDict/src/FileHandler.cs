@@ -30,6 +30,16 @@ namespace SrtTimeModify.src
             }
             writer.Close();
         }
+        public static void write(String path, List<string> content,bool append)
+        {
+             
+            StreamWriter writer = new StreamWriter(path, append, Encoding.GetEncoding("gbk"));
+            foreach (string str in content)
+            {
+                writer.WriteLine(str);
+            }
+            writer.Close();
+        }
         
         
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using GrammarRecognition.src.main.model;
 using System.IO;
+using System.Collections;
 
 namespace GrammarRecognition.src.main.logical
 {
@@ -45,8 +46,47 @@ namespace GrammarRecognition.src.main.logical
             sortByGrammarSeq(outPath + "\\文章按照语法序号降序排序.txt");
             sortByGrammarSeqSentence(outPath + "\\句子按照语法序号降序排序.txt");
             printSentenceWithGrammar(outPath + "\\句子后面加上了它含有的语法.txt");
+            grammarAppearFrequency(outPath );
         }
-      
+
+        public void grammarAppearFrequency(String outPath)
+        {
+            Hashtable map = new Hashtable();
+            Hashtable grammarMap = new Hashtable();
+            for (int i = 0; i < grammars.Count; i++)
+            {
+                grammarMap[grammars[i].Abbreviation] = grammars[i];
+                if (map.ContainsKey(grammars[i].Abbreviation))
+                {
+                    map[grammars[i].Abbreviation] = ((int)map[grammars[i].Abbreviation]) + grammars[i].frequency;
+                }
+                else
+                {
+                    map[grammars[i].Abbreviation] = grammars[i].frequency;
+                }
+                
+            }
+
+            
+            List<DictionaryEntry> l = map.Cast<DictionaryEntry>().OrderBy(entry => entry.Value).ToList();
+            StreamWriter writer1 = new StreamWriter(outPath + "\\语法出现次数统计.txt", false, Encoding.GetEncoding("gbk"));
+            StreamWriter writer2 = new StreamWriter(outPath + "\\词组出现次数统计.txt", false, Encoding.GetEncoding("gbk"));
+            foreach (DictionaryEntry entry in l)
+            {
+                if (((Grammar)grammarMap[entry.Key]).Type == Grammar.T_GRAMMAR)
+                {
+                    
+                    writer1.Write("语法：" + entry.Key + ": 出现次数:  " + entry.Value + "\r\n");
+                }else
+                    writer2.Write("短语：" + entry.Key + ": 出现次数:  " + entry.Value + "\r\n");
+            }
+            writer1.Flush();
+            writer1.Close();
+            writer2.Flush();
+            writer2.Close();
+
+        }
+
         public List<String> getTextByHighestGrammar(String abbr, int type)
         {
             List<String> list = new List<String>();
@@ -155,7 +195,7 @@ namespace GrammarRecognition.src.main.logical
                     }
                     else
                         writer.Write(s.Text);
-                    writer.Write("\r\n");
+                    //writer.Write("\r\n");
                 }
                 writer.Write("\r\n\r\n");
             }
@@ -255,6 +295,7 @@ namespace GrammarRecognition.src.main.logical
                         
                         if (isSencenceContainsPattern(sentence, grammar))
                         {
+                            grammar.frequency++;
                             sentence.addGrammar(grammar);
                             paragraph.addGrammar(grammar);
                         }
