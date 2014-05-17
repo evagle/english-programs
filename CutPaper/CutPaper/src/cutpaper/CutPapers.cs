@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
+using Newtonsoft.Json;
 
 namespace CutPaper.src.cutpaper
 {
@@ -18,7 +19,7 @@ namespace CutPaper.src.cutpaper
             "A,","B,","C,","D,",
         };
         private String[] keywords = new String[] { "^Part", "^Section", "^Directions", "^注意",
-            "听第.*段对话", "完形填空", "^阅读下面短文", "阅读理解",
+            "听第.*段对话", "完形填空", "^阅读下面短文", "阅读理解","阅读",
             "短文改错", "书面表达" ,"单项填空","听","答","英语",
             "画","第一","第二","第三","划","第四","第六","^Questions [0-9]* to","^Passage",
         "^Text[ \t]*[0-9]","[ \t0-9]*Directions","Choose the best.*for each numbered blank"
@@ -31,9 +32,10 @@ namespace CutPaper.src.cutpaper
           "Reading[ \t]*Comprehension", 
             "choose the most suitable paragraphs from the list",
             "改错","Translation","翻译","参考答案",
-        "单项填空","Vocabulary[ \t]*and[ \t]*Structure",
+        "单项","Vocabulary[ \t]*and[ \t]*Structure",
             "Directions.*There are.*incomplete sentences",
          "书面表达","Writing", "^例","^[Ee]xample","best fits the context",
+         "###[0-9]*-[0-9]*","单词拼写","完成句子"
             };
         private String[] listeningpattern = new String[] {
             "Listening[ \t]*Comprehension","听力",
@@ -69,8 +71,17 @@ namespace CutPaper.src.cutpaper
         private String[] examplepattern = new String[]{
             "^例","^[Ee]xample"
         };
-       
-        
+        private String[] completecentencepattern = new String[]{
+            "完成句子",
+        };
+        private String[] wordspellpattern = new String[]{
+            "单词拼写",
+        };
+        Hashtable optionTable = null;
+        Hashtable answertable = null;
+
+        //List<Block> selectReadingBlocks = new List<Block>();
+        Hashtable selectReadingBlocks = new Hashtable();
         public void process(String path,string outpath)
         {
             String[] tmp  = outpath.Split(new char[]{'\\'});
@@ -79,8 +90,10 @@ namespace CutPaper.src.cutpaper
             List<String> paper = getPaper(path);
             List<Block> blocks = cutBySelection(paper);
             List<Block> finalBlocks=null;
-            Hashtable optionTable=null;
-            Hashtable answertable = null;
+            List<Block> jsonBlocks = new List<Block>();
+           
+            optionTable=null;
+            answertable = null;
             try
             {
                 blocks = findKeyLineBlock(blocks, paper);
@@ -93,6 +106,12 @@ namespace CutPaper.src.cutpaper
             catch (Exception e) { Console.WriteLine("setRightBlockTag:"+e.Message); }
             try
             {
+                setGuessSeqRange(blocks);
+            }
+            catch (Exception e) { Console.WriteLine("setGuessSeqRange:" + e.Message); }
+            
+            try
+            {
                 removeAttentionBlock(blocks);
             }
             catch (Exception e) { Console.WriteLine("removeAttentionBlock:" + e.Message); }
@@ -103,15 +122,28 @@ namespace CutPaper.src.cutpaper
             catch (Exception e) { Console.WriteLine("getFinalBlockList:" + e.Message); }
             try
             {
-                mergeReading(finalBlocks);
-                finalBlocks=mergeReadingAndCloze(finalBlocks);
-            }
-            catch (Exception e) { Console.WriteLine("mergeReading:"+e.Message); }
-            try
-            {
                 addSeqToBlock(finalBlocks, true);
             }
             catch (Exception e) { Console.WriteLine("addSeqToBlock:" + e.Message); }
+            try
+            {
+                generateJsonBlocks(finalBlocks);
+                foreach (Block b in finalBlocks)
+                {
+                    jsonBlocks.Add(b);
+                }
+               
+            }
+            catch (Exception e) { Console.WriteLine("mergeReading:" + e.Message); }
+
+            try
+            {
+                //mergeReading(finalBlocks);
+                finalBlocks=mergeReadingAndCloze(finalBlocks);
+                 
+            }
+            catch (Exception e) { Console.WriteLine("mergeReading:"+e.Message); }
+            
             try
             {
                 answertable = getAnswer(finalBlocks);
@@ -129,29 +161,121 @@ namespace CutPaper.src.cutpaper
             catch (Exception e) { Console.WriteLine("getOptionTable:"+e.Message); }
             try
             {
-                //addSeqToBlock(blocks, true);
+                findCorrection(blocks);
             }
-            catch (Exception e) { Console.WriteLine("addSeqToBlock:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("findCorrection:" + e.Message); }
             try
             {
                 //fillWithAnswer(blocks, optionTable, answertable);
                 fillWithAnswer(finalBlocks, optionTable, answertable);
             }
             catch (Exception e) { Console.WriteLine("fillWithAnswer:"+e.Message); }
+
+            printJsonBlocks(finalBlocks, outpath + "_json.txt");
             try
             {
                 printPaperFilledWithAnswer(finalBlocks, outpath + "_填入答案后的试卷.txt");
                 printBlocks(finalBlocks, outpath + "_split.txt",false);
                 printBlocks(finalBlocks, outpath + "_切分并填答案.txt", true);
+                printJsonBlocks(finalBlocks, outpath + "_json.txt");
             }
             catch (Exception e) { Console.WriteLine("printPaperFilledWithAnswer,printBlocks:" + e.Message); }
 
         }
-          
+        private void generateJsonBlocks(List<Block> blocks)
+        {
+            foreach (Block b in blocks)
+            {
+                if (b.Type == Block.BLOCK_TYPE.selection||b.Type == Block.BLOCK_TYPE.selection_cloze
+                    || b.Type == Block.BLOCK_TYPE.selection_reading)
+                {
+                    bool optionStart = false;
+                    foreach (string line in b.Lines)
+                    {
+                        String sline = line.Trim();
+                        if (sline.Contains("A.") || sline.Contains("B.") || optionStart == true)
+                        {
+                            optionStart = true;
+                            parseOption(sline, b.options);
+                        }else{
+                            b.question.Add(sline);
+                        }
+                    }
+                }
+                else if (b.Type == Block.BLOCK_TYPE.closen || b.Type == Block.BLOCK_TYPE.reading)
+                {
+                    b.article.AddRange(b.Lines);
+                    b.question.AddRange(b.Lines);
+                }
+                 
+
+            }
+        }
+        private void parseOption(String str, Hashtable option){
+            int[] pos = new int[5];
+            string[] ch = new string[]{"A","B","C","D"};
+            pos[0] = str.IndexOf("A.");
+            pos[1] = str.IndexOf("B.");
+            pos[2] = str.IndexOf("C.");
+            pos[3] = str.IndexOf("D.");
+            pos[4] = -1;
+            for(int i=0;i<= 4;i++){
+                if(pos[i]>=0){
+                    int start = pos[i]+2;
+                    int end =str.Length;
+                    if(pos[i+1]>0)
+                        end = pos[i+1];
+                    option[ch[i]] = str.Substring(start,end-start).Trim();
+                }
+            }
+             
+        }
+        private void findCorrection(List<Block> blocks)
+        {
+             
+            for (int i = blocks.Count - 1; i >= Math.Max(0, blocks.Count - 10); i--)
+            {
+                if (blocks[i].getString().Contains("###改错") && i-1>=0) {
+                    blocks[i - 1].Type = Block.BLOCK_TYPE.correction;
+                }
+
+            }
+        }
+
+        private void setGuessSeqRange(List<Block> blocks)
+        {
+            Block seqBlock =null;
+            foreach (Block b in blocks)
+            {
+                if (b.Type == Block.BLOCK_TYPE.seq_range)
+                {
+                    seqBlock = b;
+                }
+                else
+                {
+                    if (seqBlock != null)
+                    {
+                        b.guessMinSeq = seqBlock.guessMinSeq;
+                        b.guessMaxSeq = seqBlock.guessMaxSeq;
+                    }
+                }
+            }
+        }
         private List<int> getSeqList(Block b)
         {
             if (b.Seqs.Count == 0)
-                return new List<int>();
+            {
+                if (b.guessMinSeq > 0 && (b.Type == Block.BLOCK_TYPE.closen || b.Type == Block.BLOCK_TYPE.reading))
+                {
+                    for (int i = b.guessMinSeq; i <= b.guessMaxSeq;i++ )
+                    {
+                        b.AddSeq(i);
+                    }
+                    return b.Seqs;
+                }else
+                    return new List<int>();
+            }
+               
             List<int> seqlist = new List<int>();
             seqlist.AddRange(b.Seqs);
             String text = b.getString();
@@ -175,11 +299,43 @@ namespace CutPaper.src.cutpaper
                      && b.Answers.Count > 0 && optionTable.ContainsKey(b.Seqs[0]))
                 {
                     Regex r = new Regex(@"[ _]{4,}");
-                    b.TextFilledWithAnswer = r.Replace(b.getQuestionString(), " " + (String)((Hashtable)optionTable[b.Seqs[0]])[b.Answers[0].Trim()] + " ")+b.getOptionString();
+                    Hashtable options = null;
+                    string ansStr = null;
+                    if(optionTable.ContainsKey(b.Seqs[0])){
+                        options = (Hashtable)optionTable[b.Seqs[0]];
+                    }
+                    else
+                        continue;
+                    if (options.ContainsKey(b.Answers[0]))
+                    {
+                        ansStr = (string)options[b.Answers[0]];
+                    }
+                    else
+                        continue;
+                    
+                    ansStr = ansStr.Replace("（", "").Replace("）", "").Replace("(", " ").Replace(")", " ");
+                    string[] ansArr = null;
+                    if (ansStr.Contains(";") || ansStr.Contains(",") || ansStr.Contains("；") || ansStr.Contains("，"))
+                    {
+                        ansArr = ansStr.Split(new char[] { ';', ',', '；', '，' });
+                    }
+                    else
+                        ansArr = new string[] { ansStr };
+                    String tmp = b.getQuestionString();
+                    foreach (string ans in ansArr)
+                    {
+                        string beReplace = ans.Trim();
+                        if (ans.Equals("/") || ans.Equals("不填"))
+                        {
+                            beReplace = "";
+                        }
+                        tmp = r.Replace(tmp, " " + beReplace + " ", 1);
+                    }
+                    b.TextFilledWithAnswer = tmp + b.getOptionString();
                     b.TextFilledWithAnswer = r.Replace(b.TextFilledWithAnswer, " ");
-                    //b.QuestionStringFilledWithAnswer = r.Replace(b.getOptionString(), " " + (String)((Hashtable)optionTable[b.Seqs[0]])[b.Answers[0].Trim()] + " ");
+                    b.QuestionStringFilledWithAnswer = r.Replace(tmp, " "); ;
                 }
-                else if (b.Type == Block.BLOCK_TYPE.closen || b.Type == Block.BLOCK_TYPE.selection_cloze )
+                else if (b.Type == Block.BLOCK_TYPE.closen )
                 {
                     List<int> seqlist = getSeqList(b);
 
@@ -191,7 +347,7 @@ namespace CutPaper.src.cutpaper
                             if (b.TextFilledWithAnswer == null)
                             {
                                 b.TextFilledWithAnswer = myReplace(b.getString(), seq.ToString(), " " + (String)((Hashtable)optionTable[seq])[((String)answertable[seq]).Trim()] + " ");
-                                b.QuestionStringFilledWithAnswer = myReplace(b.getQuestionString(), seq.ToString(), " " + (String)((Hashtable)optionTable[seq])[((String)answertable[seq]).Trim()] + " ");
+                                b.QuestionStringFilledWithAnswer = myReplace(b.questionLinesToString(), seq.ToString(), " " + (String)((Hashtable)optionTable[seq])[((String)answertable[seq]).Trim()] + " ");
                             }
                             else
                             {
@@ -204,8 +360,10 @@ namespace CutPaper.src.cutpaper
                     Regex rx = new Regex("[_()（）]+");
                     if (b.TextFilledWithAnswer!=null)
                         b.TextFilledWithAnswer = rx.Replace(b.TextFilledWithAnswer, " ");
+                    b.TextFilledWithAnswer = Regex.Replace(b.TextFilledWithAnswer, @"[ \t]+", " ");
                     if (b.QuestionStringFilledWithAnswer!=null)
-                        b.QuestionStringFilledWithAnswer = rx.Replace(b.QuestionStringFilledWithAnswer, " ");  
+                        b.QuestionStringFilledWithAnswer = rx.Replace(b.QuestionStringFilledWithAnswer, " ");
+                    b.QuestionStringFilledWithAnswer = Regex.Replace(b.QuestionStringFilledWithAnswer, @"[ \t]+", " ");
                 }else if( b.Type == Block.BLOCK_TYPE.reading){
                     List<int> seqlist = b.Seqs;
                     seqlist.Sort();
@@ -536,7 +694,7 @@ namespace CutPaper.src.cutpaper
                      MatchCollection matches =null;
                     answerStarted = true;
                     foreach(String line in b.Lines){
-                          r = new Regex("[0-9]+[.．][^0-9]*");
+                          r = new Regex("([0-9]+[.．][^0-9]*)|([0-9]+[ ]*[ABCD])");
                           matches = r.Matches(line);
                         foreach (Match match in matches)
                         {
@@ -593,6 +751,10 @@ namespace CutPaper.src.cutpaper
                             {
                                 if (!anstable.ContainsKey(k) && ansStr.Length > k - start - 1)
                                     anstable.Add(k, ansStr.Substring(k - start, 1));
+                                if (anstable.ContainsKey(k) && ((string)anstable[k]).Length > 3 && ((string)anstable[k]).Length <= 6)
+                                {
+                                    anstable[k]=  ansStr.Substring(k - start, 1);
+                                }
                             }
                            
                         }
@@ -609,18 +771,35 @@ namespace CutPaper.src.cutpaper
         {
             seq = -1;
             ans = "";
-            if(line.Contains(".")||line.Contains("．")){
+            if (line.Contains(".") || line.Contains("．"))
+            {
                 if (line.ToCharArray()[1].Equals('.') || line.ToCharArray()[1].Equals('．'))
                 {
                     seq = Int32.Parse(line.Substring(0, 1));
-                    ans = line.Substring(2, line.Length-2) ;
+                    ans = line.Substring(2, line.Length - 2);
                 }
                 else
                 {
                     seq = Int32.Parse(line.Substring(0, 2));
-                    ans = line.Substring(3, line.Length-3);
+                    ans = line.Substring(3, line.Length - 3);
                 }
             }
+            else
+            {
+                line = line.Replace(" ", "");
+                Regex r = new Regex(@"(?<seq>[0-9]+)(?<ans>[ABCD])");
+                string pattern = @"\b(?<protocol>\S+)://(?<address>\S+)\b"; //匹配URL的模式,并分组
+                MatchCollection mc = Regex.Matches(line, @"(?<seq>[0-9]+)(?<ans>[ABCD])"); //满足pattern的匹配集合
+
+                foreach (Match match in mc)
+                {
+                    GroupCollection gc = match.Groups;
+                    seq = Int32.Parse(gc["seq"].Value);
+                    ans = gc["ans"].Value;
+
+                }
+            }
+                    
             
         }
         private void mergeReading(List<Block> finalBlocks)
@@ -631,6 +810,7 @@ namespace CutPaper.src.cutpaper
                     finalBlocks.ElementAt(i).Type == Block.BLOCK_TYPE.reading)
                 {
                     Block newblock = mergeBlock(finalBlocks.ElementAt(i-1), finalBlocks.ElementAt(i));
+                 
                     finalBlocks.RemoveAt(i );
                     finalBlocks.RemoveAt(i-1 );
                     finalBlocks.Insert(i-1, newblock);
@@ -643,17 +823,22 @@ namespace CutPaper.src.cutpaper
 
             for (int i = 0; i < finalBlocks.Count; )
             {
-                if (finalBlocks.ElementAt(i).Type == Block.BLOCK_TYPE.reading ||
+                if (finalBlocks.ElementAt(i).Type == Block.BLOCK_TYPE.reading||
                     finalBlocks.ElementAt(i).Type == Block.BLOCK_TYPE.closen)
                 {
                     Block newblock = finalBlocks.ElementAt(i);
+                    
                     int j = i + 1;
                     for (; j < finalBlocks.Count; j++)
                         if (finalBlocks.ElementAt(j).Type == Block.BLOCK_TYPE.selection ||
                             finalBlocks.ElementAt(j).Type == Block.BLOCK_TYPE.selection_cloze ||
-                            (finalBlocks.ElementAt(j).Type == Block.BLOCK_TYPE.keyline&&j==i+1&&
-                            finalBlocks.ElementAt(i).Type == Block.BLOCK_TYPE.reading))
+                            finalBlocks.ElementAt(j).Type == Block.BLOCK_TYPE.selection_reading)
+                        {
                             newblock = mergeBlock(newblock, finalBlocks.ElementAt(j));
+                            if (finalBlocks.ElementAt(j).Type == Block.BLOCK_TYPE.selection_reading)
+                                selectReadingBlocks[finalBlocks.ElementAt(j).Seqs[0]] = finalBlocks.ElementAt(j);
+                        }
+
                         else
                             break;
                     i = j;
@@ -672,10 +857,10 @@ namespace CutPaper.src.cutpaper
         private Block mergeBlock(Block b1, Block b2)
         {
             Block block = new Block();
-            block.Type = b1.Type;
+            block.Type = b1.Type; 
             block.Lines.AddRange(b1.Lines);
             block.Lines.AddRange(b2.Lines);
-
+            block.question = b1.question;
             block.AddSeqsRange(b1.Seqs);
             block.AddSeqsRange(b2.Seqs);
             return block;
@@ -698,7 +883,7 @@ namespace CutPaper.src.cutpaper
                 if (notSplited && (block.Type == Block.BLOCK_TYPE.closen ||
                     block.Type == Block.BLOCK_TYPE.reading))
                 {
-                    int tmp = curseq;
+                    int tmp = Math.Max(curseq,block.guessMinSeq);
                     while (!block.getString().Contains(tmp.ToString()) && tmp - curseq < 3)
                     {
                         tmp++;
@@ -720,7 +905,7 @@ namespace CutPaper.src.cutpaper
                     || block.Type == Block.BLOCK_TYPE.selection_cloze)
                 {
 
-                    int tmp = curseq;
+                    int tmp = Math.Max(curseq, block.guessMinSeq);
                     while (!block.getString().Contains(tmp.ToString()) && tmp - curseq < 3)
                     {
                         tmp++; 
@@ -742,7 +927,7 @@ namespace CutPaper.src.cutpaper
                     
                 }
                 else if (block.Type == Block.BLOCK_TYPE.listening || block.Type == Block.BLOCK_TYPE.reading ||
-                    block.Type == Block.BLOCK_TYPE.correction || block.Type == Block.BLOCK_TYPE.translation)
+                     block.Type == Block.BLOCK_TYPE.translation)
                 {
                     int tmp = 0;
                     while (!block.getString().Contains(curseq.ToString()+".")&&
@@ -754,6 +939,10 @@ namespace CutPaper.src.cutpaper
                         curseq++;
                     }
                 }
+                else if (block.Type == Block.BLOCK_TYPE.correction)
+                {
+                    //改错不需要seq
+                }
             }
 
         }
@@ -764,20 +953,8 @@ namespace CutPaper.src.cutpaper
             for (int i = 0; i < blocks.Count;  )
             {
                 Block block = blocks.ElementAt(i);
-                /*if (block.Type == Block.BLOCK_TYPE.closen)
-                {
-                    List<Block> tmpList = new List<Block>();
-                    i = splitClozeBlock(blocks, i, tmpList);
-                    finalList.AddRange(tmpList);
-                } 
-                else if (block.Type == Block.BLOCK_TYPE.reading)
-                {
-                    List<Block> tmpList = new List<Block>();
-                    i = splitReadingComprehension(blocks, i, tmpList);
-                    finalList.AddRange(tmpList);
-                }*/
-                if ( block.Type == Block.BLOCK_TYPE.correction
-                    ||block.Type == Block.BLOCK_TYPE.translation)
+              
+                if (block.Type == Block.BLOCK_TYPE.translation)
                 {
                     List<Block> tmpList = new List<Block>();
                     i = splitOthers(blocks, i, tmpList);
@@ -1010,19 +1187,21 @@ namespace CutPaper.src.cutpaper
             if (blocks == null || blocks.Count == 0)
                 return;
             Block.BLOCK_TYPE type = Block.BLOCK_TYPE.unknown;
-            
-            for(int i=0;i<blocks.Count;i++)
+
+            for (int i = 0; i < blocks.Count; i++)
             {
                 Block block = blocks.ElementAt(i);
                 if (block.Type == Block.BLOCK_TYPE.keyline && type != Block.BLOCK_TYPE.answer)
                 {
                     //listening
-                     
-                    if (isblockContainsPattern(block, listeningpattern))
+
+                    /*if (isblockContainsPattern(block, listeningpattern))
                     {
                         type = Block.BLOCK_TYPE.listening;
                     }
-                    else if (isblockContainsPattern(block, readingpattern))
+                    else*/
+
+                    if (isblockContainsPattern(block, readingpattern))
                     {
                         type = Block.BLOCK_TYPE.reading;
                     }
@@ -1040,7 +1219,7 @@ namespace CutPaper.src.cutpaper
                     }
                     else if (isblockContainsPattern(block, answerpattern))
                     {
-                        
+
                         if (i > 0 && blocks.ElementAt(i - 1).Type == Block.BLOCK_TYPE.example)
                         {
                             type = Block.BLOCK_TYPE.example;
@@ -1052,33 +1231,89 @@ namespace CutPaper.src.cutpaper
                     {
                         type = Block.BLOCK_TYPE.selection;
                     }
+                    else if (isblockContainsPattern(block, completecentencepattern))
+                    {
+                        type = Block.BLOCK_TYPE.complete_sentence;
+                    }
+                    else if (isblockContainsPattern(block, wordspellpattern))
+                    {
+                        type = Block.BLOCK_TYPE.word_spell;
+                    }
                     else if (isblockContainsPattern(block, writingpattern))
                     {
                         type = Block.BLOCK_TYPE.writing;
                     }
+                    else if (isblockContainsPattern(block, new string[] { "###[0-9]+-[0-9]+" }))
+                    {
+                        block.Type = Block.BLOCK_TYPE.seq_range;
+                        Regex r = new Regex("###([0-9]+)-([0-9]+)");
+                        MatchCollection matches = r.Matches(block.getString());
+                        if (matches.Count > 0)
+                        {
+                            String str = matches[0].Captures[0].Value;
+                            str = str.Replace("#", "").Replace(" ", "");
+                            string[] x = str.Split(new char[] { '-' });
+                            block.guessMinSeq = Convert.ToInt32(x[0]);
+                            block.guessMaxSeq = Convert.ToInt32(x[1]);
+                        }
 
-                }else if(block.Type == Block.BLOCK_TYPE.unknown){
-                    if (isblockContainsPattern(block, examplepattern)){
+                    }
+                }
+                else if (block.Type == Block.BLOCK_TYPE.unknown)
+                {
+                    if (isblockContainsPattern(block, examplepattern))
+                    {
                         block.Type = Block.BLOCK_TYPE.example;
                     }
-                    else if (type == Block.BLOCK_TYPE.closen )
+                    else if (type == Block.BLOCK_TYPE.closen)
                     {
                         Regex r = new Regex("^[0-9]");
-                        if (r.IsMatch(block.getString()) && block.Lines.Count <= 3) { 
+                        if (r.IsMatch(block.getString()) && block.Lines.Count <= 5)
+                        {
                             block.Type = Block.BLOCK_TYPE.selection_cloze;
-                        }else
+                        }
+                        else
                             block.Type = type;
-                    }else
+                    }
+                    else if (i > 0 && i < blocks.Count - 1 && isSameType(blocks.ElementAt(i - 1) , blocks.ElementAt(i + 1)))
+                    {
+                        block.Type = blocks.ElementAt(i - 1).Type;
+                        if (blocks.ElementAt(i + 1).Seqs.Count > 0 && block.Seqs.Count == 0)
+                        {
+                            block.Seqs.Add(blocks.ElementAt(i + 1).Seqs[0] - 1);
+                        }
+                    }
+                    else
+                    {
                         block.Type = type;
+                    }
                 }
-                else if (block.Type == Block.BLOCK_TYPE.selection)
+
+                if (block.Type == Block.BLOCK_TYPE.selection)
                 {
                     if (type == Block.BLOCK_TYPE.listening)
                         block.Type = Block.BLOCK_TYPE.selection_listening;
                     else if (type == Block.BLOCK_TYPE.closen)
                         block.Type = Block.BLOCK_TYPE.selection_cloze;
+                    else if (type == Block.BLOCK_TYPE.reading)
+                    {
+                        block.Type = Block.BLOCK_TYPE.selection_reading;
+                    }
                 }
             }
+        }
+        //selection_reading selection_cloze 和selection是相等的
+        private bool isSameType(Block b1,Block b2)
+        {
+            if (b1.Type == b2.Type || (isSelection(b1) && isSelection(b2)))
+                return true;
+            else 
+                return false;
+        }
+        private bool isSelection(Block b)
+        {
+            return b.Type == Block.BLOCK_TYPE.selection || b.Type == Block.BLOCK_TYPE.selection_reading ||
+                b.Type == Block.BLOCK_TYPE.selection_cloze || b.Type == Block.BLOCK_TYPE.selection_listening;
         }
         private bool isblockContainsPattern(Block block, String[] patterns)
         {
@@ -1109,7 +1344,6 @@ namespace CutPaper.src.cutpaper
                         block.EndLineNum = i;
                         block.Type = Block.BLOCK_TYPE.unknown;
                         copyContent(paper, block);
-                      
                         blocks.Add(block);
                     }
                     int newEnd = findSelectionEnd(paper, i+1);
@@ -1255,8 +1489,11 @@ namespace CutPaper.src.cutpaper
         } 
         private void printPaperFilledWithAnswer(List<Block> blocks,String outPath){
             StreamWriter writer = new StreamWriter(outPath, false,Encoding.GetEncoding("gbk"));
+            bool answer = false;
             foreach (Block b in blocks)
             {
+                if (b.Type == Block.BLOCK_TYPE.seq_range)
+                    continue;
                 if (b.TextFilledWithAnswer != null)
                     writer.Write(b.TextFilledWithAnswer);
                 else
@@ -1270,8 +1507,155 @@ namespace CutPaper.src.cutpaper
                     }
                     writer.Write("\n");
                 }
-                writer.WriteLine(filename+"\n");
+                if (b.Type == Block.BLOCK_TYPE.answer)
+                {
+                    answer = true;
+                }
+                //答案和标题之间下面不输出文件名
+                if (!answer && b.Type != Block.BLOCK_TYPE.keyline)
+                    writer.WriteLine(filename+"\n");
             }
+            writer.WriteLine(filename + "\n");
+            writer.Flush();
+            writer.Close();
+        }
+        private void printJsonBlocks(List<Block> blocks, String outPath)
+        {
+            StreamWriter writer = new StreamWriter(outPath, false, Encoding.GetEncoding("gbk"));
+            Hashtable data = new Hashtable();
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                if (blocks[i].Type == Block.BLOCK_TYPE.selection)
+                {
+                    if (data.ContainsKey("type"))
+                    {
+                        writer.WriteLine(JsonConvert.SerializeObject(data));
+                        data = new Hashtable();
+                    }
+                    data["type"] = "selection";
+                    data["paper"] = filename;
+                    
+                    Hashtable qq = new Hashtable();
+                    if (blocks[i].Seqs.Count == 0)
+                        continue;
+                    qq["seq"] = blocks[i].Seqs[0];
+                    qq["origin_question"] = blocks[i].questionLinesToString().Trim();
+                    if (blocks[i].QuestionStringFilledWithAnswer!=null)
+                        qq["question_with_answer"] = blocks[i].QuestionStringFilledWithAnswer.Trim();
+                    qq["options"] = blocks[i].options;
+                    Hashtable opt = (Hashtable)qq["options"];
+                    if (opt != null)
+                    {
+                        if (answertable.ContainsKey(blocks[i].Seqs[0]))
+                        {
+                            opt["select"] = answertable[blocks[i].Seqs[0]];
+                        }
+
+                        if (opt.ContainsKey("select")&&blocks[i].options.ContainsKey(opt["select"]))
+                        {
+                            opt["value"] = ((string)blocks[i].options[opt["select"]]).Trim();
+                        }
+                        else
+                            opt["value"] = null;
+                        data["question"] = qq;
+                    }
+                    if (data.ContainsKey("type"))
+                    {
+                        writer.WriteLine(JsonConvert.SerializeObject(data));
+                        data = new Hashtable();
+                    }
+                    
+                }
+                else if (blocks[i].Type == Block.BLOCK_TYPE.closen)
+                {
+                    if (data.ContainsKey("type")) {
+                        writer.WriteLine(JsonConvert.SerializeObject(data));
+                        data = new Hashtable();
+                    }
+                    data["type"] = "cloze";
+                    data["paper"] = filename;
+                    data["origin_article"] = blocks[i].questionLinesToString().Trim();
+                    if (blocks[i].QuestionStringFilledWithAnswer != null)
+                        data["article_filled_answer"] = blocks[i].QuestionStringFilledWithAnswer.Trim();
+                    else
+                        data["article_filled_answer"] = null;
+                    List<Hashtable> optList= new List<Hashtable>();
+                    foreach (int seq in blocks[i].Seqs)
+                    {
+                        Hashtable opt = new Hashtable();
+                        opt["seq"] = seq;
+                        if (optionTable.ContainsKey(seq))
+                        {
+                            opt["options"] = ((Hashtable)optionTable[seq]);
+                            Hashtable tmp = (Hashtable)opt["options"];
+                            if (answertable.ContainsKey(seq))
+                                tmp["select"] = answertable[seq];
+                           
+                            tmp["value"] = null;
+                            if (tmp.ContainsKey("select")&&tmp.ContainsKey(tmp["select"]))
+                                tmp["value"] = tmp[tmp["select"]];
+                            optList.Add(opt);
+                        }
+                    }
+                    data["question"] = optList;
+                }
+                else if (blocks[i].Type == Block.BLOCK_TYPE.reading)
+                {
+                    if (data.ContainsKey("type"))
+                    {
+                        writer.WriteLine(JsonConvert.SerializeObject(data));
+                        data = new Hashtable();
+                    }
+                    data["type"] = "reading";
+                    data["paper"] = filename;
+                    data["origin_article"] = blocks[i].questionLinesToString().Trim();
+                    List<Hashtable> optList = new List<Hashtable>();
+                    foreach (int seq in blocks[i].Seqs)
+                    {
+                        Hashtable opt = new Hashtable();
+                        opt["seq"] = seq;
+                        opt["origin_question"] = "";
+                        if (selectReadingBlocks.ContainsKey(seq))
+                        {
+                            opt["origin_question"] = ((Block)selectReadingBlocks[seq]).questionLinesToString();
+                            
+                        }
+                        if (optionTable.ContainsKey(seq))
+                        {
+                            opt["options"] = ((Hashtable)optionTable[seq]);
+                            Hashtable tmp = (Hashtable)opt["options"];
+                            if (answertable.ContainsKey(seq))
+                                tmp["select"] = answertable[seq];
+                           
+
+                            tmp["value"] = null;
+                            if (tmp.ContainsKey("select") && tmp.ContainsKey(tmp["select"]))
+                            {
+                                tmp["value"] = ((string)tmp[tmp["select"]]).Trim();
+                                Regex r = new Regex(@"[ _]{4,}");
+                                if (r.IsMatch((string)opt["origin_question"]))
+                                {
+                                    opt["question_with_answer"] = r.Replace((string)opt["origin_question"], " "+(string)tmp["value"]+" ", 1);
+                                }
+                                else
+                                {
+                                    opt["question_with_answer"] = ((string)opt["origin_question"]).Trim() + " " + (string)tmp["value"];
+                                }
+                            }
+                            optList.Add(opt);
+                        }
+                    }
+                    data["question"] = optList;
+                }
+                 
+
+                
+            }
+            writer.WriteLine(JsonConvert.SerializeObject(data));
+            
+
+            writer.Flush();
+            writer.Close();
         }
         private void printBlocks(List<Block> blocks,String outPath,bool isFilledAnswer)
         {
@@ -1281,17 +1665,12 @@ namespace CutPaper.src.cutpaper
             Block preBlock = null;
             foreach (Block b in blocks)
             {
-
+                if (b.Type == Block.BLOCK_TYPE.seq_range)
+                    continue;
                 if (b.Type == Block.BLOCK_TYPE.keyline)
                 {
                     //listening
-                    if (isblockContainsPattern(b, listeningpattern))
-                    {
-                        if (type != Block.BLOCK_TYPE.listening)
-                            writer.Write("听力：\r\n");
-                        type = Block.BLOCK_TYPE.listening;
-                    }
-                    else if (isblockContainsPattern(b, readingpattern))
+                    if (isblockContainsPattern(b, readingpattern))
                     {
                         if (type != Block.BLOCK_TYPE.reading)
                             writer.Write("阅读理解：\r\n");
@@ -1469,6 +1848,7 @@ namespace CutPaper.src.cutpaper
                     line = line.Replace("　", " ");
                     line = line.Replace("＿", "_");
                     line = line.TrimStart(new char[] { '-' });
+                    line = ToDBC(line);
                     if(!line.Equals(""))
                         list.Add(line);
                     line = reader.ReadLine();
@@ -1481,5 +1861,31 @@ namespace CutPaper.src.cutpaper
             }
             return list;
         }
+        /************************************************************************/
+        /*  /// <summary> 转半角的函数(DBC case) </summary>
+            /// <param name="input">任意字符串</param>
+            /// <returns>半角字符串</returns>
+            ///<remarks>
+            ///全角空格为12288，半角空格为32
+            ///其他字符半角(33-126)与全角(65281-65374)的对应关系是：均相差65248
+            ///</remarks>                                                                */
+        /************************************************************************/
+
+        public string ToDBC(string input)
+        {
+            char[] c = input.ToCharArray();
+            for (int i = 0; i < c.Length; i++)
+            {
+                if (c[i] == 12288)
+                {
+                    c[i] = (char)32;
+                    continue;
+                }
+                if (c[i] > 65280 && c[i] < 65375)
+                    c[i] = (char)(c[i] - 65248);
+            }
+            return new string(c);
+        }
     }
+    
 }
