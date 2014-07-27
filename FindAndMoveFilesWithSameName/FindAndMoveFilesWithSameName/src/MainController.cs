@@ -59,7 +59,6 @@ namespace FindAndMoveFilesWithSameName.src
             FileInfo[] files = dirInfo.GetFiles();
             for (int i = 0; i < files.Length; i++)
             {
-
                 String matchedName = mach(files[i].Name);
                 if (matchedName != null)
                 {
@@ -135,7 +134,8 @@ namespace FindAndMoveFilesWithSameName.src
                     {
                         if (isfirstLine)
                         {
-                            indices.addIndex(sLine);
+                            if (!indices.hasIndex(sLine))
+                                indices.addIndex(sLine);
                             isfirstLine = false;
                         }
                     }

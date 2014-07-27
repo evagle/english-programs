@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using SrtTimeModify.src;
-using System.IO;
 
 namespace SrtTimeModify
 {
@@ -25,6 +24,7 @@ namespace SrtTimeModify
             if (result == DialogResult.OK) // Test result.
             {
                 this.textBox1.Text = openFileDialog.FileName;
+               
             }
         }
 
@@ -39,6 +39,8 @@ namespace SrtTimeModify
                 this.textBox2.Text = openFileDialog.FileName;
             }
         }
+
+      
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -68,20 +70,12 @@ namespace SrtTimeModify
 
         private void button3_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "请选择文件夹";
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                this.textBox3.Text = dialog.SelectedPath;
-            }
-
-
-           /* OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog();
             DialogResult result = openFileDialog.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
                 this.textBox3.Text = openFileDialog.FileName;
-            }*/
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -93,46 +87,22 @@ namespace SrtTimeModify
             }
             if (this.textBox3.Text == null || this.textBox3.Text.Equals(""))
             {
-                MessageBox.Show("需要先选择文件夹");
+                MessageBox.Show("需要先选择文件");
                 return;
             }
 
-            listFiles(this.textBox3.Text);
-
-        }
-        public void listFiles(string path)
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo(path);
-            FileInfo[] files = dirInfo.GetFiles();
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                splitAndFixTime(files[i].FullName, Convert.ToInt32(this.textBox4.Text),
-                    checkBox2.Checked, Convert.ToInt32(this.textBoxParagraphSpan2.Text));
-            }
-            DirectoryInfo[] dirs = dirInfo.GetDirectories();
-            for (int i = 0; i < dirs.Length; i++)
-            {
-                listFiles(dirs[i].FullName);
-            }
-        }
-        private void splitAndFixTime(string fullPath, int span1, bool check,int span2)
-        {
-
             SplitToParagraphs merge = new SplitToParagraphs();
-
-           // String fullPath = this.textBox3.Text;
+            
+            String fullPath = this.textBox3.Text;
             string path = fullPath.Substring(0, fullPath.LastIndexOf("\\"));
             string name = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
-
+           
             List<string> list = merge.split(FileHandler.read(fullPath));
-            StretchTime stretch = new StretchTime(list, span1, check);
-            list = stretch.stretch(span2);
-            
-            Directory.CreateDirectory(path + "-改好时间\\");
-            FileHandler.writeStartTimeEndTime(path + "-改好时间\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
-            FileHandler.write(path + "-改好时间\\改好时间-" + name, list);
-        
+            StretchTime stretch = new StretchTime(list, Convert.ToInt32(this.textBox4.Text), checkBox2.Checked);
+            list = stretch.stretch(Convert.ToInt32(this.textBoxParagraphSpan2.Text));
+            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
+            FileHandler.write(path + "\\改好时间-" + name, list);
+            MessageBox.Show("已经输出到：" + path + "\\改好时间-" + name);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -180,10 +150,9 @@ namespace SrtTimeModify
             AddTitleSeq instance = new AddTitleSeq();
             List<string> stat = new List<string>();
             instance.listFiles(tBAddTitleSeq.Text, stat);
-            FileHandler.write(tBAddTitleSeq.Text+"-加标题序号\\段数统计.txt", stat);
+            FileHandler.write(tBAddTitleSeq.Text+"\\段数统计.txt", stat);
             MessageBox.Show("加标题序号成功,段数统计在：" + tBAddTitleSeq.Text + "\\段数统计.txt", "加标题序号成功");
         }
-
 
  
     }
