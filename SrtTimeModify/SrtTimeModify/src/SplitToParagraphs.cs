@@ -28,7 +28,12 @@ namespace SrtTimeModify.src
             {
                 if (isTime(tmp[i]))
                 {
-                    if (i - 1 >= 0 && isSentEnd(tmp[i - 1]))
+                    if (i - 1 >= 0 && isSentEnd(tmp[i - 1]) )
+                    {
+                        this.result.Add("");
+                        this.result.Add(tmp[i]);
+                    }
+                    else if (i - 2 >= 0 && !isTime(tmp[i - 1]) && isSentEnd(tmp[i - 2]))
                     {
                         this.result.Add("");
                         this.result.Add(tmp[i]);

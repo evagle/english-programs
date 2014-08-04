@@ -305,7 +305,10 @@ namespace GrammarRecognition.src.main.logical
         }
         private Boolean isSencenceContainsPattern(Sentence sentence, Grammar grammar)
         {
-
+            if (grammar.Abbreviation == "Willnv")
+            {
+                Console.WriteLine("Willnv");
+            }
             for (int i = 0; i <= sentence.Words.Length - grammar.Pattern.Length; i++)
             {
                 Boolean contains = true;
@@ -314,8 +317,9 @@ namespace GrammarRecognition.src.main.logical
                     if (grammar.Pattern[j].Equals("*"))
                         continue;
                     if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) && 
-                        !sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim().ToLower())&&
-                        !sentence.Words[i + j].ToLower().EndsWith(grammar.Pattern[j].ToLower()))
+                        !sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim().ToLower())
+                        //&&!sentence.Words[i + j].ToLower().EndsWith(grammar.Pattern[j].ToLower())
+                        )
                     {
                         contains = false;
                         break;

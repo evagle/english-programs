@@ -97,7 +97,7 @@ namespace GrammarRecognition.src.main.logical
         }
         public void expandGrammar(Grammar grammar ,List<String> ignoreList)
         {
-           
+         
             bool isExpanded = false;
             List<String> tmpIgnoreList = new List<String>(ignoreList);
             for (int i = 0; i < grammar.Pattern.Length;i++ )
@@ -132,7 +132,8 @@ namespace GrammarRecognition.src.main.logical
                                 }
                                 newGrammar.Pattern = tmp.ToArray();
                                 grammars.Add(newGrammar);
-                                ignoreList.Add(p);
+                                tmpIgnoreList.Add(p);
+                                tmpIgnoreList.AddRange(ws);
                                 expandGrammar(newGrammar, tmpIgnoreList);
                             }
 

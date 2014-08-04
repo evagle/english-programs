@@ -76,12 +76,6 @@ namespace SrtTimeModify
             }
 
 
-           /* OpenFileDialog openFileDialog = new OpenFileDialog();
-            DialogResult result = openFileDialog.ShowDialog();
-            if (result == DialogResult.OK) // Test result.
-            {
-                this.textBox3.Text = openFileDialog.FileName;
-            }*/
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -98,7 +92,7 @@ namespace SrtTimeModify
             }
 
             listFiles(this.textBox3.Text);
-
+            MessageBox.Show("分段完成");
         }
         public void listFiles(string path)
         {
@@ -107,8 +101,10 @@ namespace SrtTimeModify
 
             for (int i = 0; i < files.Length; i++)
             {
-                splitAndFixTime(files[i].FullName, Convert.ToInt32(this.textBox4.Text),
-                    checkBox2.Checked, Convert.ToInt32(this.textBoxParagraphSpan2.Text));
+                int span1 = (int)(Convert.ToDouble(this.textBox4.Text)*1000);
+                int span2 = (int)(Convert.ToDouble(this.textBoxParagraphSpan2.Text)*1000);
+                splitAndFixTime(files[i].FullName, span1,
+                    checkBox2.Checked, span2);
             }
             DirectoryInfo[] dirs = dirInfo.GetDirectories();
             for (int i = 0; i < dirs.Length; i++)

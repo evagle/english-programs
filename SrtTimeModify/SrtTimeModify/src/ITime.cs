@@ -28,6 +28,7 @@ namespace SrtTimeModify.src
             if (parts.Length == 4)
             {
                 this.intTime = Convert.ToInt32(parts[0]) * 3600 + Convert.ToInt32(parts[1]) * 60 + Convert.ToInt32(parts[2]);
+                this.intTime = this.intTime * 1000 + Convert.ToInt32(parts[3]);
                 this.millSecond = parts[3];
             }
         }
@@ -42,12 +43,14 @@ namespace SrtTimeModify.src
         }
         public void intToString(){
             strTime = "";
-            strTime += (intTime / 3600).ToString("00") + ":" + ((intTime % 3600) / 60).ToString("00") +":"+ (intTime % 3600 % 60).ToString("00");
-            strTime += "," + millSecond;
+            int sec = intTime / 1000;
+            int milisec = intTime % 1000;
+            strTime += (sec / 3600).ToString("00") + ":" + ((sec % 3600) / 60).ToString("00") + ":" + (sec % 3600 % 60).ToString("00");
+            strTime += "," + milisec;
         }
         public double sub(ITime otherTime) {
             double res = intTime - otherTime.intTime;
-            res += (double.Parse(millSecond) - double.Parse(otherTime.millSecond)) / 1000;
+            //res += (double.Parse(millSecond) - double.Parse(otherTime.millSecond)) / 1000;
             return res;
         }
 

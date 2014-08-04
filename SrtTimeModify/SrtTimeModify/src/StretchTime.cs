@@ -66,7 +66,7 @@ namespace SrtTimeModify.src
         private List<string> list;
         private int timeSpan;
         public List<string> startTimeEndTime;
-
+        
         public StretchTime(List<string> list, int t, bool isFillLongTimeSpan)
         {
             this.list = list;
