@@ -74,6 +74,12 @@ namespace SrtTimeModify.src
             this.isFillLongTimeSpan = isFillLongTimeSpan;
             
         }
+        public StretchTime(List<string> list)
+        {
+            this.list = list;
+            this.timeSpan = 0;
+            this.isFillLongTimeSpan = false;
+        }
         public List<string> stretch(int timeBetweenParagraphs)
         {
 
@@ -94,13 +100,18 @@ namespace SrtTimeModify.src
                 }
             }
 
+            this.getStartTimeEndTime();
+
+            return getResultArticle();
+        }
+        public List<string> getStartTimeEndTime()
+        {
             this.startTimeEndTime = new List<String>();
             for (int i = 0; i < blocks.Count; i++)
             {
                 this.startTimeEndTime.Add(blocks[i].genStartEndTime());
             }
-
-            return getResultArticle();
+            return this.startTimeEndTime;
         }
         private void addTime(int t)
         {

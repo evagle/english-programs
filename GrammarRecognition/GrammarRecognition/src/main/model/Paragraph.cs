@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace GrammarRecognition.src.main.model
 {
@@ -16,7 +17,7 @@ namespace GrammarRecognition.src.main.model
         private int minSeq=Int32.MaxValue;
         public Paragraph(String text)
         {
-            text = text.Replace("\n", "");
+            //text = text.Replace("\n", "");
             this.text = text;
             sentences = new List<Sentence>();
             abbreviations = new List<string>();
@@ -50,29 +51,47 @@ namespace GrammarRecognition.src.main.model
                 abbreviations.Add(grammar.Abbreviation);
             }
         }
+        
         public void splitToSentences()
         {
-            HashSet<String> map = new HashSet<String>();
-            map.Add(".");
-            map.Add("!");
-            map.Add("?");
-            int start = 0;
-            for (int i = 0; i < (text.Length); i++)
+            HashSet<char> map = new HashSet<char>();
+            map.Add('.');
+            map.Add('!');
+            map.Add('?');
+            
+            string[] lines = text.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries);
+            String str = "";
+            Regex r = new Regex("[a-zA-Z]+");
+            foreach (string line in lines)
             {
-                if (map.Contains(text.Substring(i, 1)) )
+                if (r.IsMatch(line))
                 {
-                    Sentence sentence = new Sentence(text.Substring(start, i + 1 - start));
-                    //sentence.Text = text.Substring(start, i + 1 - start);
-                    if(!sentence.Text.Trim().Equals(""))
-                        sentences.Add(sentence);
-                    start = i + 1;
+                    int start = 0;
+                    for (int i = 0; i < line.Length; i++)
+                    {
+                        if (map.Contains(line[i]))
+                        {
+                            Sentence sentence = new Sentence(str + line.Substring(start, i + 1 - start));
+                            str = "";
+                            if (!sentence.Text.Trim().Equals(""))
+                                sentences.Add(sentence);
+                            start = i + 1;
+                        }
+                    }
+                    if (start < line.Length)
+                    {
+                        str += line.Substring(start, line.Length - start) + "\n";
+                    }
+                    else
+                    {
+                        str += "\r\n";
+                    }
+                    
                 }
-            }
-            if (start < text.Length && !text.Substring(start, text.Length - start).Trim().Equals(""))
-            {
-                Sentence sentence = new Sentence(text.Substring(start, text.Length - start));
-                if (!sentence.Text.Trim().Equals(""))
-                    sentences.Add(sentence);
+                else
+                {
+                    str += line + "\n";
+                }
             }
         }
         private bool isNextSentence(char[] chs, int start)

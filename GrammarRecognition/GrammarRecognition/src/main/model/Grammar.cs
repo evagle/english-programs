@@ -25,12 +25,24 @@ namespace GrammarRecognition.src.main.model
             get { return type; }
             set { type = value; }
         }
-        public Grammar(Grammar g) {
+        public Grammar(Grammar g) 
+        {
             this.text = g.Text;
             this.name = g.Name;
             this.abbreviation = g.Abbreviation;
             this.type = g.type;
             this.Seq = g.Seq;
+            this.pattern = g.Pattern;
+        }
+        public Grammar subGrammar(int start)
+        {
+            Grammar g = new Grammar();
+            g.Pattern = new string[this.pattern.Length - start];
+            for (int i = start; i < this.pattern.Length; i++ )
+            {
+                g.Pattern[i - start] = this.pattern[i];
+            }
+            return g;
         }
         public String Text
         {

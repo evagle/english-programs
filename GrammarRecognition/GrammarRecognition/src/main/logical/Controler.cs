@@ -5,6 +5,7 @@ using System.Text;
 using GrammarRecognition.src.main.model;
 using System.IO;
 using System.Collections;
+using System.Threading;
 
 namespace GrammarRecognition.src.main.logical
 {
@@ -12,9 +13,12 @@ namespace GrammarRecognition.src.main.logical
     {
         private List<Paragraph> paragraphs;
         private List<Sentence> sentences;
+      
         private WordMap wordmap;
         private List<Grammar> grammars;
         private List<Grammar> noReapeatGrammars;
+        private int finishedThreadNum;
+        private int threadNum;
         public Controler(String POSPath, String grammarPath,
             String paragraphPath,String outPath)
         {
@@ -38,8 +42,22 @@ namespace GrammarRecognition.src.main.logical
                 }
             }
             
-
-            findPatternInEachSentence();
+            threadNum = 8;
+            finishedThreadNum = 0;
+            for (int i = 0; i < threadNum; i++)   
+            {
+                ParameterizedThreadStart ParStart = new
+                ParameterizedThreadStart(this.findPatternInEachSentence);
+                Thread myThread = new
+                Thread(ParStart);
+                object o = i;
+                myThread.Start(o);
+            }
+            while(finishedThreadNum < threadNum){
+                Thread.Sleep(2000);
+            }
+           
+            //findPatternInEachSentence();
 
             printParagraphHasGrammar(outPath+"\\出现过某语法的文章.txt");
             printSentencesHasGrammar(outPath + "\\出现过某语法的句子.txt", false);
@@ -48,7 +66,7 @@ namespace GrammarRecognition.src.main.logical
             printSentenceWithGrammar(outPath + "\\句子后面加上了它含有的语法.txt");
             grammarAppearFrequency(outPath );
         }
-
+        
         public void grammarAppearFrequency(String outPath)
         {
             Hashtable map = new Hashtable();
@@ -75,7 +93,6 @@ namespace GrammarRecognition.src.main.logical
             {
                 if (((Grammar)grammarMap[entry.Key]).Type == Grammar.T_GRAMMAR)
                 {
-                    
                     writer1.Write("语法：" + entry.Key + ": 出现次数:  " + entry.Value + "\r\n");
                 }else
                     writer2.Write("短语：" + entry.Key + ": 出现次数:  " + entry.Value + "\r\n");
@@ -283,16 +300,18 @@ namespace GrammarRecognition.src.main.logical
             writer.Flush();
             writer.Close();
         }
-        public void findPatternInEachSentence()
+        public void findPatternInEachSentence(object paramObj)
         {
+            int param = (int)paramObj;
+
             foreach (Grammar grammar in grammars)
             {
-                foreach (Paragraph paragraph in paragraphs)
+                for (int i = param; i < paragraphs.Count; i += threadNum)
                 {
+                    Paragraph paragraph = paragraphs[i];
                     sentences = paragraph.Sentences;
                     foreach (Sentence sentence in sentences)
                     {
-                        
                         if (isSencenceContainsPattern(sentence, grammar))
                         {
                             grammar.frequency++;
@@ -302,27 +321,64 @@ namespace GrammarRecognition.src.main.logical
                     }
                 }
             }
+            finishedThreadNum ++;
         }
         private Boolean isSencenceContainsPattern(Sentence sentence, Grammar grammar)
         {
-            if (grammar.Abbreviation == "Willnv")
-            {
-                Console.WriteLine("Willnv");
-            }
-            for (int i = 0; i <= sentence.Words.Length - grammar.Pattern.Length; i++)
+            
+            for (int i = 0; i <= sentence.Words.Count - grammar.Pattern.Length; i++)
             {
                 Boolean contains = true;
+                
                 for (int j = 0; j < grammar.Pattern.Length; j++)
                 {
-                    if (grammar.Pattern[j].Equals("*"))
-                        continue;
-                    if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) && 
-                        !sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim().ToLower())
-                        //&&!sentence.Words[i + j].ToLower().EndsWith(grammar.Pattern[j].ToLower())
-                        )
+                    if (grammar.Pattern[j].Equals("*") && j < grammar.Pattern.Length - 1)
                     {
-                        contains = false;
-                        break;
+                        /*
+                         * 遇到*之后
+                         * 从这个位置开始可以跳n个词，
+                         * 如果遇到下一个匹配，就递归
+                         */
+                        bool matched = false;
+                        for (int k = j ; k  < sentence.Words.Count - i; k++)
+                        {
+                            String word = sentence.Words[i + k];
+                            if (word.Equals(grammar.Pattern[j+1]))
+                            {
+                                Sentence subSent = sentence.subSentence(i + k + 1);
+                                Grammar subGram = grammar.subGrammar(j + 2);
+                                matched |= this.isSencenceContainsPattern(subSent, subGram);
+                            }
+                        }
+                        if (matched)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                         
+                    if (grammar.Pattern[j][0] < 'a')//语法中大写的只能匹配大写
+                    {
+                        if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
+                            !sentence.Words[i + j].Equals(grammar.Pattern[j].Trim())
+                            )
+                        {
+                            contains = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
+                            !sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim())
+                            )
+                        {
+                            contains = false;
+                            break;
+                        }
                     }
                 }
                 if (contains)

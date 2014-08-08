@@ -41,14 +41,21 @@ namespace GrammarRecognition.src.main.logical
                 StreamReader reader = new StreamReader(filepath, Encoding.Default);
                 string line = "";
                 line = reader.ReadLine();
+                int lineCount = 0;
                 while (line != null)
                 {
                     if (!line.Trim().Equals(""))
-                        set.Add(line.Trim().ToLower());
+                        set.Add(line.Trim());
                     line = reader.ReadLine();
+                    lineCount++;
                 }
                 reader.Close();
-                map.addWordList(name.Replace(".txt", ""), set);
+                string dictName = name.Replace(".txt", "");
+                map.addWordList(dictName, set);
+                if (lineCount > 400)
+                {
+                    map.reservedDictName[dictName] = true;
+                }
             }
             catch (Exception e)
             {

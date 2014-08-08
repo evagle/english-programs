@@ -177,7 +177,7 @@ namespace SrtTimeModify
             List<string> stat = new List<string>();
             instance.listFiles(tBAddTitleSeq.Text, stat);
             FileHandler.write(tBAddTitleSeq.Text+"-加标题序号\\段数统计.txt", stat);
-            MessageBox.Show("加标题序号成功,段数统计在：" + tBAddTitleSeq.Text + "\\段数统计.txt", "加标题序号成功");
+            MessageBox.Show("加标题序号成功,结果在：“" + tBAddTitleSeq.Text + "-加标题序号” 文件夹 ", "加标题序号成功");
         }
 
 

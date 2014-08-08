@@ -24,6 +24,12 @@ namespace GrammarRecognition.src.main.logical
         public  List<Grammar> getGrammars()
         {
             HashSet<string> set = new HashSet<string>();
+            List<String> ignoreList = new List<String>();
+            foreach (string s in wordmap.reservedDictName.Keys)
+            {
+                ignoreList.Add(s);
+            }
+           
             try
             {
                 StreamReader reader = new StreamReader(path, Encoding.Default);
@@ -52,11 +58,8 @@ namespace GrammarRecognition.src.main.logical
 
                         grammar.Seq = Int32.Parse(parts[4]);
                         grammars.Add(grammar);
-                        List<String> ignoreList = new List<String>();
-                        ignoreList.Add("n");
-                        ignoreList.Add("v");
-                        ignoreList.Add("ved");
-                        ignoreList.Add("ving");
+                       
+                        
                         expandGrammar(grammar, ignoreList);
                     }
                     else if (parts.Length == 4)
@@ -95,9 +98,12 @@ namespace GrammarRecognition.src.main.logical
             }
             return tmp.ToArray();
         }
-        public void expandGrammar(Grammar grammar ,List<String> ignoreList)
+        public void expandGrammar(Grammar grammar, List<String> ignoreList)
         {
-         
+            if (grammar.Abbreviation == "Whatan")
+            {
+                Console.WriteLine("tt");
+            }
             bool isExpanded = false;
             List<String> tmpIgnoreList = new List<String>(ignoreList);
             for (int i = 0; i < grammar.Pattern.Length;i++ )

@@ -30,13 +30,14 @@ namespace SrtTimeModify.src
         public List<String> addTitleSeq(string path, string oname)
         {
             string name = oname.Replace("改好时间-", "");
-            name = name.Replace(".srt", "").Replace(".txt","");
-            name = name.Replace(".eng", "").Replace(".chs&eng", "").Replace(".chs", "");
+            //name = name.Replace(".srt", "").Replace(".txt","");
+            //name = name.Replace(".eng", "").Replace(".chs&eng", "").Replace(".chs", "");
 
 
             bool start = true;
             int i = 1;
             List<String> lines = FileHandler.read(path + "\\" + oname);
+         
             List<String> outLines = new List<String>();
             foreach (string line in lines)
             {
@@ -56,8 +57,16 @@ namespace SrtTimeModify.src
                     start = false;
                 }
             }
-            Directory.CreateDirectory(path + "-加标题序号\\");
-            FileHandler.write(path + "-加标题序号\\加标题序号-" + oname, outLines);
+            path = path + "-加标题序号\\";
+            Directory.CreateDirectory(path);
+            FileHandler.write(path + "加标题序号-" + oname, outLines);
+
+            StretchTime st = new StretchTime(lines);
+            st.articleToParagraphBlocks();
+            List<string> startEndTimeList = st.getStartTimeEndTime();
+            FileHandler.writeStartTimeEndTime(path + "开始时间-结束时间-" + name, startEndTimeList);
+         
+
             List<String> statList = new List<String>();
             statList.Add(oname);
             statList.Add((i-1)+"");

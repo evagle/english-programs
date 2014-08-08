@@ -10,32 +10,18 @@ namespace GrammarRecognition.src.main.model
     {
         private string text;
         private List<string> abbreviations;
-        private String[] words;
+        private List<string> words;
         private String title;//first sentence in the paragraph
-
-        public String Title
-        {
-            get { return title; }
-            set { title = value; }
-        }
-
         private int minSeq = Int32.MaxValue;
 
-        public int MinSeq
+        public Sentence()
         {
-            get { return minSeq; }
-            set { minSeq = value; }
-        }
-
-        public String[] Words
-        {
-            get { return words; }
-            set { words = value; }
         }
         public Sentence(String text)
         {
             this.text = text;
             abbreviations = new List<string>();
+            words = new List<string>();
             splitToWords();
         }
         public void addGrammar(Grammar grammar)
@@ -77,32 +63,63 @@ namespace GrammarRecognition.src.main.model
         }
         public void splitToWords()
         {
-            Regex r = new Regex("[^A-Za-z0-9 \r\n\t-'’,:：]");
-            String rawtext=  r.Replace(text, "");
-            r = new Regex("[ \t\r\n:：]+");
-            rawtext = r.Replace(rawtext, " ");
-            String[] tmp = rawtext.Split(new char[] { ' ', '\t', '\n' });
-            List<String> list = new List<String>();
-            for (int i = 0; i < tmp.Length; i++)
+            foreach (string line in text.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries))
             {
-                if (!tmp[i].Trim().Equals(""))
+                Regex r = new Regex("[a-zA-Z]+");
+                if (r.IsMatch(line))
                 {
-                    if(tmp[i].StartsWith(",")){
-                        list.Add(",");
-                        list.Add(tmp[i].Replace(",",""));
-                    }else if(tmp[i].EndsWith(",")){
-                        list.Add(tmp[i].Replace(",", ""));
-                        list.Add(",");
-                    }else
-                        list.Add(tmp[i]);
+                    string[] tmp = this.lineToWords(line);
+                    words.AddRange(tmp);
                 }
             }
-            words = list.ToArray();
         }
+
+        public string[] lineToWords(string str)
+        {
+            Regex r = new Regex("[^A-Za-z0-9 \r\n\t-'’,?:：]");
+            String rawtext = r.Replace(str, "");
+            r = new Regex("[ \t\r\n:：]+");
+            rawtext = r.Replace(rawtext, " ");
+            rawtext = rawtext.Replace(",", " , ");
+            rawtext = rawtext.Replace("?", " ? ");
+
+            return rawtext.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public Sentence subSentence(int start)
+        {
+            Sentence sub = new Sentence();
+            sub.words = new List<string>();
+            for (int i = start; i < this.words.Count; i++ )
+            {
+                sub.Words.Add(this.words[i]);
+            }
+            return sub;
+        }
+
         public string Text
         {
             get { return text; }
             set { text = value; }
+        }
+        public String Title
+        {
+            get { return title; }
+            set { title = value; }
+        }
+
+
+
+        public int MinSeq
+        {
+            get { return minSeq; }
+            set { minSeq = value; }
+        }
+
+        public List<String> Words
+        {
+            get { return words; }
+            set { words = value; }
         }
 
         public List<string> Abbreviations
