@@ -29,11 +29,12 @@ namespace GrammarRecognition.src.main.logical
             {
                 ignoreList.Add(s);
             }
-           
+            StringBuilder duplicateGrammars = new StringBuilder();
             try
             {
                 StreamReader reader = new StreamReader(path, Encoding.Default);
                 string line = reader.ReadLine();
+                
                 while (line != null)
                 {
 
@@ -42,7 +43,7 @@ namespace GrammarRecognition.src.main.logical
                     if (set.Contains(parts[2]))
                     {
                         Console.WriteLine(parts[2]);
-
+                        duplicateGrammars.Append(line + "\n");
                     }
                     else
                         set.Add(parts[2]);
@@ -74,6 +75,9 @@ namespace GrammarRecognition.src.main.logical
                          
                         grammar.Seq = Int32.Parse(parts[3]);
                         grammars.Add(grammar);
+
+                        expandGrammar(grammar, ignoreList);
+
                     }
                     else {
                         MessageBox.Show("语法格式不对,请先修改：" + line);
@@ -86,6 +90,10 @@ namespace GrammarRecognition.src.main.logical
             	Console.WriteLine(ex.StackTrace);
             }
             Console.WriteLine("abbr num:" + set.Count);
+            if (duplicateGrammars.ToString() != "")
+            {
+                MessageBox.Show("以下语法有重复，请及时修改" + duplicateGrammars.ToString());
+            }
             return grammars;
         }
         private String[] removeSpace(String[] strArr)
@@ -100,10 +108,7 @@ namespace GrammarRecognition.src.main.logical
         }
         public void expandGrammar(Grammar grammar, List<String> ignoreList)
         {
-            if (grammar.Abbreviation == "Whatan")
-            {
-                Console.WriteLine("tt");
-            }
+            
             bool isExpanded = false;
             List<String> tmpIgnoreList = new List<String>(ignoreList);
             for (int i = 0; i < grammar.Pattern.Length;i++ )
@@ -118,7 +123,19 @@ namespace GrammarRecognition.src.main.logical
                     HashSet<String> set = wordmap.getWordList(p);
                     if (set != null && !tmpIgnoreList.Contains(p))
                     {
-                        tmpIgnoreList.Add(p);
+                        //判断后面是否还有相同的缩写，没有就加的ignore里，有就不行
+                        bool haveSamePatternBeind = false;
+                        for (int m = i + 1; m < grammar.Pattern.Length; m ++ )
+                        {
+                            if (grammar.Pattern[m] == p)
+                            {
+                                haveSamePatternBeind = true;
+                                break;
+                            }
+                        }
+                        if (!haveSamePatternBeind)
+                            tmpIgnoreList.Add(p);
+
                         foreach (String s in set)
                         {
                             String[] ws = s.Split(new char[] { ' ' });
@@ -138,7 +155,7 @@ namespace GrammarRecognition.src.main.logical
                                 }
                                 newGrammar.Pattern = tmp.ToArray();
                                 grammars.Add(newGrammar);
-                                tmpIgnoreList.Add(p);
+                                
                                 tmpIgnoreList.AddRange(ws);
                                 expandGrammar(newGrammar, tmpIgnoreList);
                             }

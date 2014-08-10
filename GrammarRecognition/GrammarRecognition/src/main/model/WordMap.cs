@@ -47,19 +47,22 @@ namespace GrammarRecognition.src.main.model
             }
             int wlen = word.Length;
 
-            if (listName == "n")
+            if (listName == "n" || listName == "v")
             {
                 if (word.EndsWith("ies"))
                 {
-                    return wordList.Contains(word.Substring(0, wlen - 3)) || wordList.Contains(word);
+                    return wordList.Contains(word.Substring(0, wlen - 3) + "y") || wordList.Contains(word);
                 }
-                else if (word.EndsWith("es"))
+                else if (word.EndsWith("es")) 
                 {
-                    return wordList.Contains(word.Substring(0, word.Length - 2)) || wordList.Contains(word);
+                    return wordList.Contains(word.Substring(0, word.Length - 2)) ||
+                        wordList.Contains(word.Substring(0, word.Length - 1)) || 
+                        wordList.Contains(word);
                 }
                 else if (word.EndsWith("s"))
                 {
-                    return wordList.Contains(word.Substring(0, word.Length - 1)) || wordList.Contains(word);
+                    return wordList.Contains(word.Substring(0, word.Length - 1)) || 
+                        wordList.Contains(word);
                 }
             }
             return wordList.Contains(word.ToLower()); 

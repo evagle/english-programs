@@ -42,17 +42,27 @@ namespace GrammarRecognition.src.main.logical
                 string line = "";
                 line = reader.ReadLine();
                 int lineCount = 0;
+                
+                bool havePhrase = false; //记录这个此表是不是全是单词，没有短语
+ 
                 while (line != null)
                 {
-                    if (!line.Trim().Equals(""))
+                    line = line.Trim();
+                    if (!line.Equals(""))
                         set.Add(line.Trim());
+                    if (line.Split(new char[] { ' ' }).Length > 1)
+                    {
+                        havePhrase = true;
+                    }
                     line = reader.ReadLine();
                     lineCount++;
+
+                    
                 }
                 reader.Close();
                 string dictName = name.Replace(".txt", "");
                 map.addWordList(dictName, set);
-                if (lineCount > 400)
+                if (lineCount > 400 || !havePhrase )
                 {
                     map.reservedDictName[dictName] = true;
                 }
