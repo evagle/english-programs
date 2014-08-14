@@ -214,17 +214,18 @@ namespace GrammarRecognition.src.main.logical
                         writer.Write(s.Text);
                     //writer.Write("\r\n");
                 }
-                writer.Write("\r\n\r\n\r\n\r\n");
+                writer.Write("\r\n\r\n\r\n");
             }
             writer.Flush();
             writer.Close();
         }
         public void sortByGrammarSeq(String outPath)
         {
-            paragraphs.Sort();
+            List<Paragraph> tmp = new List<Paragraph>(paragraphs);
+            tmp.Sort();
             int i = 1;
             StreamWriter writer = new StreamWriter(outPath, false, Encoding.GetEncoding("gbk"));
-            foreach (Paragraph p in paragraphs)
+            foreach (Paragraph p in tmp)
             {
                 writer.Write("第"+i.ToString() + "篇：\r\n");
                 writer.Write(p.ToStringWithAbbrAfterSentence() +"\r\n\r\n");
@@ -300,6 +301,7 @@ namespace GrammarRecognition.src.main.logical
             writer.Flush();
             writer.Close();
         }
+         
         public void findPatternInEachSentence(object paramObj)
         {
             int param = (int)paramObj;
@@ -311,7 +313,7 @@ namespace GrammarRecognition.src.main.logical
                     Paragraph paragraph = paragraphs[i];
                     sentences = paragraph.Sentences;
                     foreach (Sentence sentence in sentences)
-                    {
+                    {                    
                         if (isSencenceContainsPattern(sentence, grammar))
                         {
                             grammar.frequency++;
@@ -325,7 +327,7 @@ namespace GrammarRecognition.src.main.logical
         }
         private Boolean isSencenceContainsPattern(Sentence sentence, Grammar grammar)
         {
-            
+           
             for (int i = 0; i <= sentence.Words.Count - grammar.Pattern.Length; i++)
             {
                 Boolean contains = true;
@@ -362,8 +364,8 @@ namespace GrammarRecognition.src.main.logical
                          
                     if (grammar.Pattern[j][0] < 'a')//语法中大写的只能匹配大写
                     {
-                        if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
-                            !sentence.Words[i + j].Equals(grammar.Pattern[j].Trim())
+                        if ( !sentence.Words[i + j].Equals(grammar.Pattern[j].Trim())&&
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j])     
                             )
                         {
                             contains = false;
@@ -372,8 +374,8 @@ namespace GrammarRecognition.src.main.logical
                     }
                     else
                     {
-                        if (!wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
-                            !sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim())
+                        if (!sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim())&&
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) 
                             )
                         {
                             contains = false;

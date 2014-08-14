@@ -61,7 +61,7 @@ namespace GrammarRecognition.src.main.model
             
             string[] lines = text.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries);
             String str = "";
-            Regex r = new Regex("[a-zA-Z]+");
+            Regex r = new Regex("[a-zA-Z,.?!]+");
             foreach (string line in lines)
             {
                 if (r.IsMatch(line))
@@ -92,6 +92,12 @@ namespace GrammarRecognition.src.main.model
                 {
                     str += line + "\n";
                 }
+            }
+            if (str != null)
+            {
+                Sentence sentence = new Sentence(str);
+                if (!sentence.Text.Trim().Equals(""))
+                    sentences.Add(sentence);
             }
         }
         private bool isNextSentence(char[] chs, int start)
