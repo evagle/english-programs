@@ -33,17 +33,18 @@ namespace GrammarRecognition.src.main.model
             HashSet<String> wordList = null;
             //只有动词和名词需要扩展
             
-            if (reservedDictName.ContainsKey(listName))
-            {
+            //if (reservedDictName.ContainsKey(listName))
+            //{
                 wordList = (HashSet<String>)table[listName];
-            }
+            //}
+
             if (wordList == null)
                 return false;
             //ing 形式的转换为普通的形式
             int index = word.IndexOf("'");
             if (index >= 0)
             {
-                return wordList.Contains(word.Substring(index));
+                return wordList.Contains(word) || wordList.Contains(word.Substring(index)) ;
             }
             int wlen = word.Length;
 

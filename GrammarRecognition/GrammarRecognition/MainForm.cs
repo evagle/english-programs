@@ -86,7 +86,14 @@ namespace GrammarRecognition
             tbGrammar.Text = "D:\\刘实-英语项目\\语法识别程序\\语法加固定搭配20140807修改版.txt";
             tbOutDir.Text = "D:\\刘实-英语项目\\语法识别程序\\结果目录";
             tbParagraph.Text = "D:\\刘实-英语项目\\语法识别程序\\测试文章";
+             * 
             */
+            
+            tbPOS.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\词表";
+            tbGrammar.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\语法加固定搭配20140807修改版.txt";
+            tbOutDir.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\结果目录";
+            tbParagraph.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\测试文章";
+             
             //////////////////////////////////////////////////////////////////////////
             if (tbPOS.Text == "")
             {

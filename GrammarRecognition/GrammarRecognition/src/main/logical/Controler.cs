@@ -19,6 +19,8 @@ namespace GrammarRecognition.src.main.logical
         private List<Grammar> noReapeatGrammars;
         private int finishedThreadNum;
         private int threadNum;
+        private Hashtable gramIndex;
+
         public Controler(String POSPath, String grammarPath,
             String paragraphPath,String outPath)
         {
@@ -27,6 +29,7 @@ namespace GrammarRecognition.src.main.logical
 
             paragraphs = new List<Paragraph>();
             sentences = new List<Sentence>();
+            gramIndex = new Hashtable();
             new PrepareSentences(paragraphPath,paragraphs,sentences);
 
             PrepareGrammars prepareGrammar = new PrepareGrammars(grammarPath,wordmap);
@@ -306,6 +309,26 @@ namespace GrammarRecognition.src.main.logical
         {
             int param = (int)paramObj;
 
+
+            for (int i = param; i < paragraphs.Count; i += threadNum)
+            {
+                Paragraph paragraph = paragraphs[i];
+                sentences = paragraph.Sentences;
+                foreach (Sentence sentence in sentences)
+                {
+                    List<Grammar> gramlist = findPossibleGrammar(sentence);
+                    foreach (Grammar g in gramlist) {
+                        if (isSencenceContainsPattern(sentence, g))
+                        {
+                            g.frequency++;
+                            sentence.addGrammar(g);
+                            paragraph.addGrammar(g);
+                        }
+                    }
+                    
+                }
+            }
+/*
             foreach (Grammar grammar in grammars)
             {
                 for (int i = param; i < paragraphs.Count; i += threadNum)
@@ -323,8 +346,41 @@ namespace GrammarRecognition.src.main.logical
                     }
                 }
             }
+*/
             finishedThreadNum ++;
         }
+
+        private List<Grammar> findPossibleGrammar(Sentence sentence)
+        {
+            List<Grammar> list = new List<Grammar>(); ;
+            foreach (string word in sentence.Words) {
+                list.AddRange(getGrammarIndex(word));
+            }
+            return list;
+        }
+
+        private List<Grammar> getGrammarIndex(String word)
+        {
+            List<Grammar> list;
+            if (!gramIndex.ContainsKey(word)){
+                list = new List<Grammar>();
+            } else {
+                return (List<Grammar>)gramIndex[word];
+            }
+            foreach (Grammar grammar in grammars)
+            {
+                if (grammar.Pattern[0] == "can") {
+                    Console.Write("ca");
+                }
+                if (word.ToLower().Equals(grammar.Pattern[0])||        
+                    wordmap.isInWordList(grammar.Pattern[0], word)){
+                    list.Add(grammar);
+                }
+            }
+            gramIndex[word] = list;
+            return list;
+        }
+        
         private Boolean isSencenceContainsPattern(Sentence sentence, Grammar grammar)
         {
            
@@ -364,7 +420,7 @@ namespace GrammarRecognition.src.main.logical
                          
                     if (grammar.Pattern[j][0] < 'a')//语法中大写的只能匹配大写
                     {
-                        if ( !sentence.Words[i + j].Equals(grammar.Pattern[j].Trim())&&
+                        if ( !sentence.Words[i + j].Equals(grammar.Pattern[j])&&
                             !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j])     
                             )
                         {
@@ -374,7 +430,7 @@ namespace GrammarRecognition.src.main.logical
                     }
                     else
                     {
-                        if (!sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j].Trim())&&
+                        if (!sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j])&&
                             !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) 
                             )
                         {

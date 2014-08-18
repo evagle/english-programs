@@ -139,7 +139,7 @@ namespace GrammarRecognition.src.main.logical
                         foreach (String s in set)
                         {
                             String[] ws = s.Split(new char[] { ' ' });
-                            if (ws.Length >= 1 && !ws[0].Equals(p))
+                            if (ws.Length > 1 && !ws[0].Equals(p))
                             {
                                 isExpanded = true;
                                 Grammar newGrammar = new Grammar(grammar);
