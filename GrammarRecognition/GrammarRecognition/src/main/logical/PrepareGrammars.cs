@@ -56,7 +56,7 @@ namespace GrammarRecognition.src.main.logical
                         grammar.Name = parts[1];
                         grammar.Abbreviation = parts[2];
                         grammar.Pattern = removeSpace(parts[3].Split(new char[] { '+', ' ' }));
-
+                        grammar.PatternLowerCase = this.toLower(grammar.Pattern);
                         grammar.Seq = Int32.Parse(parts[4]);
                         grammars.Add(grammar);
                        
@@ -72,7 +72,8 @@ namespace GrammarRecognition.src.main.logical
                         grammar.Name = parts[1];
                         grammar.Abbreviation = parts[1];
                         grammar.Pattern = removeSpace(parts[2].Split(new char[] { '+', ' ' }));
-                         
+                        grammar.PatternLowerCase = this.toLower(grammar.Pattern);
+
                         grammar.Seq = Int32.Parse(parts[3]);
                         grammars.Add(grammar);
 
@@ -106,6 +107,18 @@ namespace GrammarRecognition.src.main.logical
             }
             return tmp.ToArray();
         }
+
+        private String[] toLower(String[] strArr)
+        {
+            List<String> tmp = new List<String>();
+            foreach (String s in strArr)
+            {
+              
+                tmp.Add(s.ToLower());
+            }
+            return tmp.ToArray();
+        }
+
         public void expandGrammar(Grammar grammar, List<String> ignoreList)
         {
             
@@ -154,6 +167,7 @@ namespace GrammarRecognition.src.main.logical
                                     tmp.Add(grammar.Pattern[k]);
                                 }
                                 newGrammar.Pattern = tmp.ToArray();
+                                newGrammar.PatternLowerCase = this.toLower(newGrammar.Pattern);
                                 grammars.Add(newGrammar);
                                 
                                 tmpIgnoreList.AddRange(ws);

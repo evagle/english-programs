@@ -88,16 +88,22 @@ namespace GrammarRecognition
             tbParagraph.Text = "D:\\刘实-英语项目\\语法识别程序\\测试文章";
              * 
             */
-            
-            tbPOS.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\词表";
+           
+            /*tbPOS.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\词表";
             tbGrammar.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\语法加固定搭配20140807修改版.txt";
             tbOutDir.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\结果目录";
             tbParagraph.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\测试文章";
-             
+            tbAssociate.Text = "F:\\Downloads\\刘实-英语项目\\语法识别程序\\关联词总表.txt";
+             */
             //////////////////////////////////////////////////////////////////////////
             if (tbPOS.Text == "")
             {
                 MessageBox.Show("请选择词性表所在目录");
+                return;
+            }
+            if (tbAssociate.Text == "" && cbAssociate.Checked)
+            {
+                MessageBox.Show("请选择关联词表文件");
                 return;
             }
             if (tbGrammar.Text == "")
@@ -117,7 +123,7 @@ namespace GrammarRecognition
             }
 
             controler = new Controler(tbPOS.Text,tbGrammar.Text,
-                tbParagraph.Text,tbOutDir.Text);
+                tbParagraph.Text,tbOutDir.Text, tbAssociate.Text,cbAssociate.Checked);
             foreach(Grammar g in controler.getGrammarList()){
                 cbGrammar.Items.Add(g.Abbreviation);
             }
@@ -176,5 +182,17 @@ namespace GrammarRecognition
         {
 
         }
+
+        private void buttonAssociate_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            DialogResult result = openFileDialog.ShowDialog();
+            if (result == DialogResult.OK) // Test result.
+            {
+                this.tbAssociate.Text = openFileDialog.FileName;
+            }
+        }
+
+
     }
 }

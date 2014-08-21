@@ -13,6 +13,9 @@ namespace GrammarRecognition.src.main.model
         private String name;
         private String abbreviation;
         private String[] pattern;
+        private String[] patternLowerCase;
+
+
         private int type;
 
 
@@ -38,9 +41,11 @@ namespace GrammarRecognition.src.main.model
         {
             Grammar g = new Grammar();
             g.Pattern = new string[this.pattern.Length - start];
+            g.PatternLowerCase = new string[this.pattern.Length - start];
             for (int i = start; i < this.pattern.Length; i++ )
             {
                 g.Pattern[i - start] = this.pattern[i];
+                g.PatternLowerCase[i - start] = this.PatternLowerCase[i];
             }
             return g;
         }
@@ -73,6 +78,12 @@ namespace GrammarRecognition.src.main.model
         public String ToString()
         {
             return text;
+        }
+
+        public String[] PatternLowerCase
+        {
+            get { return patternLowerCase; }
+            set { patternLowerCase = value; }
         }
     }
 }

@@ -20,13 +20,16 @@ namespace GrammarRecognition.src.main.logical
         private int finishedThreadNum;
         private int threadNum;
         private Hashtable gramIndex;
+        private AssociateWords associateWords;
+        private bool useAssociate;
 
         public Controler(String POSPath, String grammarPath,
-            String paragraphPath,String outPath)
+            String paragraphPath,String outPath, String associateFilePath,bool useAssociate)
         {
             PrepareWordList prepareWordList = new PrepareWordList();
             wordmap = prepareWordList.getWordList(POSPath);
-
+            this.useAssociate = useAssociate;
+            
             paragraphs = new List<Paragraph>();
             sentences = new List<Sentence>();
             gramIndex = new Hashtable();
@@ -44,7 +47,14 @@ namespace GrammarRecognition.src.main.logical
                     noReapeatGrammars.Add(g);
                 }
             }
-            
+
+
+            //关联词表
+            if (this.useAssociate)
+            {
+                associateWords = new AssociateWords();
+                associateWords.prepare(associateFilePath);
+            }
             threadNum = 8;
             finishedThreadNum = 0;
             for (int i = 0; i < threadNum; i++)   
@@ -318,7 +328,19 @@ namespace GrammarRecognition.src.main.logical
                 {
                     List<Grammar> gramlist = findPossibleGrammar(sentence);
                     foreach (Grammar g in gramlist) {
-                        if (isSencenceContainsPattern(sentence, g))
+                        if (g.Abbreviation == "beingved")
+                        {
+                             Console.Write("ca");
+                        }
+                        bool hasg;
+                        if (this.useAssociate)
+                        {
+                            hasg = isSencenceContainsPatternWithAssociate(sentence, g);
+                        }
+                        else {
+                            hasg = isSencenceContainsPattern(sentence, g);
+                        }
+                        if (hasg)
                         {
                             g.frequency++;
                             sentence.addGrammar(g);
@@ -328,25 +350,8 @@ namespace GrammarRecognition.src.main.logical
                     
                 }
             }
-/*
-            foreach (Grammar grammar in grammars)
-            {
-                for (int i = param; i < paragraphs.Count; i += threadNum)
-                {
-                    Paragraph paragraph = paragraphs[i];
-                    sentences = paragraph.Sentences;
-                    foreach (Sentence sentence in sentences)
-                    {                    
-                        if (isSencenceContainsPattern(sentence, grammar))
-                        {
-                            grammar.frequency++;
-                            sentence.addGrammar(grammar);
-                            paragraph.addGrammar(grammar);
-                        }
-                    }
-                }
-            }
-*/
+
+
             finishedThreadNum ++;
         }
 
@@ -354,11 +359,18 @@ namespace GrammarRecognition.src.main.logical
         {
             List<Grammar> list = new List<Grammar>(); ;
             foreach (string word in sentence.Words) {
-                list.AddRange(getGrammarIndex(word));
+                if (this.useAssociate)
+                {
+                    list.AddRange(getGrammarIndexWithAssociate(word));
+                }
+                else
+                {
+                    list.AddRange(getGrammarIndex(word));
+                }
             }
             return list;
         }
-
+        
         private List<Grammar> getGrammarIndex(String word)
         {
             List<Grammar> list;
@@ -369,11 +381,14 @@ namespace GrammarRecognition.src.main.logical
             }
             foreach (Grammar grammar in grammars)
             {
-                if (grammar.Pattern[0] == "can") {
+                if (grammar.Abbreviation == "beingved")
+                {
                     Console.Write("ca");
                 }
-                if (word.ToLower().Equals(grammar.Pattern[0])||        
-                    wordmap.isInWordList(grammar.Pattern[0], word)){
+                if (word.ToLower().Equals(grammar.PatternLowerCase[0])||        
+                    wordmap.isInWordList(grammar.Pattern[0], word)
+                     )
+                {
                     list.Add(grammar);
                 }
             }
@@ -401,7 +416,7 @@ namespace GrammarRecognition.src.main.logical
                         for (int k = j ; k  < sentence.Words.Count - i; k++)
                         {
                             String word = sentence.Words[i + k];
-                            if (word.Equals(grammar.Pattern[j+1]))
+                            if (word.Equals(grammar.Pattern[j + 1]) || wordmap.isInWordList(grammar.Pattern[j+1], word))
                             {
                                 Sentence subSent = sentence.subSentence(i + k + 1);
                                 Grammar subGram = grammar.subGrammar(j + 2);
@@ -421,7 +436,7 @@ namespace GrammarRecognition.src.main.logical
                     if (grammar.Pattern[j][0] < 'a')//语法中大写的只能匹配大写
                     {
                         if ( !sentence.Words[i + j].Equals(grammar.Pattern[j])&&
-                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j])     
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j])  
                             )
                         {
                             contains = false;
@@ -430,8 +445,8 @@ namespace GrammarRecognition.src.main.logical
                     }
                     else
                     {
-                        if (!sentence.Words[i + j].ToLower().Equals(grammar.Pattern[j])&&
-                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) 
+                        if (!sentence.Words[i + j].ToLower().Equals(grammar.PatternLowerCase[j]) &&
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j])
                             )
                         {
                             contains = false;
@@ -444,6 +459,101 @@ namespace GrammarRecognition.src.main.logical
             }
             return false;
         }
+
+        private List<Grammar> getGrammarIndexWithAssociate(String word)
+        {
+            List<Grammar> list;
+            if (!gramIndex.ContainsKey(word))
+            {
+                list = new List<Grammar>();
+            }
+            else
+            {
+                return (List<Grammar>)gramIndex[word];
+            }
+            foreach (Grammar grammar in grammars)
+            {
+                if (grammar.Abbreviation == "beingved")
+                {
+                    Console.Write("ca");
+                }
+                if (word.ToLower().Equals(grammar.PatternLowerCase[0]) ||
+                    wordmap.isInWordList(grammar.Pattern[0], word)
+                    || associateWords.isAssociateWord(grammar.Pattern[0], word))
+                {
+                    list.Add(grammar);
+                }
+            }
+            gramIndex[word] = list;
+            return list;
+        }
+
+        private Boolean isSencenceContainsPatternWithAssociate(Sentence sentence, Grammar grammar)
+        {
+
+            for (int i = 0; i <= sentence.Words.Count - grammar.Pattern.Length; i++)
+            {
+                Boolean contains = true;
+
+                for (int j = 0; j < grammar.Pattern.Length; j++)
+                {
+                    if (grammar.Pattern[j].Equals("*") && j < grammar.Pattern.Length - 1)
+                    {
+                        /*
+                         * 遇到*之后
+                         * 从这个位置开始可以跳n个词，
+                         * 如果遇到下一个匹配，就递归
+                         */
+                        bool matched = false;
+                        for (int k = j; k < sentence.Words.Count - i; k++)
+                        {
+                            String word = sentence.Words[i + k];
+                            if (word.Equals(grammar.Pattern[j + 1]) || wordmap.isInWordList(grammar.Pattern[j + 1], word))
+                            {
+                                Sentence subSent = sentence.subSentence(i + k + 1);
+                                Grammar subGram = grammar.subGrammar(j + 2);
+                                matched |= this.isSencenceContainsPattern(subSent, subGram);
+                            }
+                        }
+                        if (matched)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (grammar.Pattern[j][0] < 'a')//语法中大写的只能匹配大写
+                    {
+                        if (!sentence.Words[i + j].Equals(grammar.Pattern[j]) &&
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
+                            !associateWords.isAssociateWord(grammar.Pattern[j], sentence.Words[i + j])
+                            )
+                        {
+                            contains = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (!sentence.Words[i + j].ToLower().Equals(grammar.PatternLowerCase[j]) &&
+                            !wordmap.isInWordList(grammar.Pattern[j], sentence.Words[i + j]) &&
+                            !associateWords.isAssociateWord(grammar.Pattern[j], sentence.Words[i + j])
+                            )
+                        {
+                            contains = false;
+                            break;
+                        }
+                    }
+                }
+                if (contains)
+                    return true;
+            }
+            return false;
+        }
+
         public List<Grammar> getGrammarList()
         {
             return noReapeatGrammars;
