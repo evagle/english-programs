@@ -13,6 +13,7 @@ namespace FindAndMoveFilesWithSameName.src
         private String[] targetFolders ;
         private String destFolder;
         private Hashtable matchResult;
+        private int seq = 1;
         
         public MainController(String indexFilePath, String[] possibleTargetFolders, String destFolder)
         {
@@ -31,7 +32,7 @@ namespace FindAndMoveFilesWithSameName.src
             foreach (String key in matchResult.Keys)
             {
                 ClipModel model = (ClipModel)matchResult[key];
-                String destPath = destFolder+"\\"+key;
+                String destPath = destFolder+"\\" + model.Seq + "-" + key;
                 if (Directory.Exists(destPath))
                 {
                     Directory.Delete(destPath, true);
@@ -71,7 +72,9 @@ namespace FindAndMoveFilesWithSameName.src
                     {
                         ClipModel model = new ClipModel(matchedName); ;
                         model.addFile(files[i].FullName,files[i].Name);
+                        model.Seq = this.seq++;
                         matchResult.Add(matchedName, model);
+
                     }
                 }
             }

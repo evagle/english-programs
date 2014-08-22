@@ -12,6 +12,13 @@ namespace FindAndMoveFilesWithSameName.src
         public List<String> fileNames = new List<String>();
         public String indexName;
         private HashSet<String> fileSet = new HashSet<String>();
+        private int seq = 0;
+
+        public int Seq
+        {
+            get { return seq; }
+            set { seq = value; }
+        }
         public void addFile(String path, String name)
         {
             if (!fileSet.Contains(path))

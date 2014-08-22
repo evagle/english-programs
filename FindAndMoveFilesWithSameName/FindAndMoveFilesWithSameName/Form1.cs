@@ -49,10 +49,11 @@ namespace FindAndMoveFilesWithSameName
             /************************************************************************/
             /* Test                                                                     */
             /************************************************************************/
-            //this.indexFileBox.Text = "D:\\刘实-英语项目\\文件查找拷贝\\indexfile.txt";
-            //this.rtbPossibleTargetFolders.Text = "D:\\刘实-英语项目\\文件查找拷贝\\src";
-            //this.DestFolderBox.Text = "D:\\刘实-英语项目\\文件查找拷贝\\destination";
+            this.indexFileBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\indexfile.txt";
+            this.rtbPossibleTargetFolders.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\src - Copy";
+            this.DestFolderBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\destination";
             /*End**/
+
             MainController controller = new MainController(this.indexFileBox.Text,
                 this.rtbPossibleTargetFolders.Lines, this.DestFolderBox.Text);
             controller.moveFiles();
