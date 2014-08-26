@@ -17,16 +17,7 @@ namespace SrtTimeModify
         {
             InitializeComponent();
         }
-
-        
-
-       
-     
-       
-
-       
-
-
+      
         private void btnAddTitleSeq_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -46,13 +37,58 @@ namespace SrtTimeModify
             }
 
 
-            SortBySpeed s = new SortBySpeed(tbFolder.Text, cbAll.Checked);
+            SortBySpeed s = new SortBySpeed(tbFolder.Text);
              
-
-            //Directory.CreateDirectory(tbFolder.Text+"-加标题序号");
-            //FileHandler.write(tbFolder.Text+"-加标题序号\\段数统计.txt", stat);
             MessageBox.Show("成功,结果在：“" + tbFolder.Text + "-排序” 文件夹 ", "排序成功");
         }
+
+        private void buttonStart2_Click(object sender, EventArgs e)
+        {
+            if (textBox2.Text == "")
+            {
+                MessageBox.Show("请先选择文件夹");
+                return;
+            }
+
+
+            SortBySpeedByFolder s = new SortBySpeedByFolder(textBox2.Text);
+
+            MessageBox.Show("成功,结果在：“" + textBox2.Text + "-排序” 文件夹 ", "排序成功");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择需要加序号的文件所在的文件夹";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                this.textBox2.Text = dialog.SelectedPath;
+            }
+        }
+
+        private void button0_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择需要加序号的文件所在的文件夹";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                this.textBox0.Text = dialog.SelectedPath;
+            }
+        }
+
+        private void buttonStart0_Click(object sender, EventArgs e)
+        {
+            if (textBox0.Text == "")
+            {
+                MessageBox.Show("请先选择文件夹");
+                return;
+            }
+
+            SortBySpeedInFile s = new SortBySpeedInFile(textBox0.Text);
+
+            MessageBox.Show("成功,结果在：“" + textBox0.Text + "-排序” 文件夹 ", "排序成功");
+        }
+
 
 
  

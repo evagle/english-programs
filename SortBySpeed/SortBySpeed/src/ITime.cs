@@ -24,7 +24,7 @@ namespace SrtTimeModify.src
             this.strTimetoIntTime();
         }
         public void strTimetoIntTime(){
-            string[] parts = this.strTime.Split(new char[]{':',','});
+            string[] parts = this.strTime.Split(new char[]{':',',','.'});
             if (parts.Length == 4)
             {
                 this.intTime = Convert.ToInt32(parts[0]) * 3600 + Convert.ToInt32(parts[1]) * 60 + Convert.ToInt32(parts[2]);

@@ -43,19 +43,22 @@ namespace SrtTimeModify.src
             writer.Close();
         }
 
-        public static void listFiles(String dirPath)
+        public static List<string> listFiles(String dirPath, string suffix)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
             FileInfo[] files = dirInfo.GetFiles();
+             List<string> fileList = new List<String>();
             for (int i = 0; i < files.Length; i++)
             {
-                //handleFile(files[i].FullName, files[i].Name, map);
+                if (suffix == "" || files[i].FullName.EndsWith(suffix))
+                    fileList.Add(files[i].FullName);
             }
             DirectoryInfo[] dirs = dirInfo.GetDirectories();
             for (int i = 0; i < dirs.Length; i++)
             {
-                listFiles(dirs[i].FullName);
+                fileList.AddRange(listFiles(dirs[i].FullName, suffix));
             }
+            return fileList;
         }
     }
 }

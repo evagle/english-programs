@@ -22,6 +22,7 @@ namespace SrtTimeModify.src
             this.lines.AddRange(other.getLines());
             return this;
         }
+
         public void addLine(string line)
         {
             lines.Add(line);
@@ -33,8 +34,8 @@ namespace SrtTimeModify.src
                 if (totalTime > 0)
                     speed = wordCount / totalTime;
             }
-            
         }
+
         public int countWords(string str)
         {
             Regex r1 = new Regex("[a-zA-Z]+");
@@ -73,14 +74,16 @@ namespace SrtTimeModify.src
 
             return lines;
         }
+
         private bool isTime(string line)
         {
-            Match match = Regex.Match(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{1,3}");
+            Match match = Regex.Match(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2}[,\.][0-9]{1,3}");
             return match.Success;
         }
+
         public void initTime(string line)
         {
-            MatchCollection matches = Regex.Matches(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{1,3}");
+            MatchCollection matches = Regex.Matches(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2}[,\.][0-9]{1,3}");
             int i = 0;
             foreach (Match match in matches)
             {

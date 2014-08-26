@@ -49,10 +49,24 @@ namespace FindAndMoveFilesWithSameName
             /************************************************************************/
             /* Test                                                                     */
             /************************************************************************/
-            this.indexFileBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\indexfile.txt";
-            this.rtbPossibleTargetFolders.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\src - Copy";
-            this.DestFolderBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\destination";
+            //this.indexFileBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\indexfile.txt";
+            //this.rtbPossibleTargetFolders.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\src - Copy";
+            //this.DestFolderBox.Text = "F:\\Downloads\\刘实-英语项目\\文件查找拷贝\\destination";
             /*End**/
+            if (this.indexFileBox.Text == null || this.indexFileBox.Text == "") {
+                MessageBox.Show("请选择含有文章标题的索引文件");
+                return;
+            }
+            if (this.rtbPossibleTargetFolders.Text == null || this.rtbPossibleTargetFolders.Text == "")
+            {
+                MessageBox.Show("请选择可能的文件夹路径");
+                return;
+            }
+            if (this.DestFolderBox.Text == null || this.DestFolderBox.Text == "")
+            {
+                MessageBox.Show("请选需要移动至的路径");
+                return;
+            }
 
             MainController controller = new MainController(this.indexFileBox.Text,
                 this.rtbPossibleTargetFolders.Lines, this.DestFolderBox.Text);

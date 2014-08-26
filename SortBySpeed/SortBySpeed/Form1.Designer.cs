@@ -33,23 +33,33 @@
             this.label10 = new System.Windows.Forms.Label();
             this.tbFolder = new System.Windows.Forms.TextBox();
             this.btnSelect = new System.Windows.Forms.Button();
-            this.cbAll = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonStart2 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.buttonStart0 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox0 = new System.Windows.Forms.TextBox();
+            this.button0 = new System.Windows.Forms.Button();
             this.groupBox4.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.cbAll);
             this.groupBox4.Controls.Add(this.btnAddSeqOK);
             this.groupBox4.Controls.Add(this.label10);
             this.groupBox4.Controls.Add(this.tbFolder);
             this.groupBox4.Controls.Add(this.btnSelect);
-            this.groupBox4.Location = new System.Drawing.Point(38, 24);
+            this.groupBox4.Location = new System.Drawing.Point(38, 176);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(453, 130);
             this.groupBox4.TabIndex = 14;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "排序";
+            this.groupBox4.Text = "排序2 - 所有字幕和视频在一个大文件夹内";
             // 
             // btnAddSeqOK
             // 
@@ -87,26 +97,120 @@
             this.btnSelect.UseVisualStyleBackColor = true;
             this.btnSelect.Click += new System.EventHandler(this.btnAddTitleSeq_Click);
             // 
-            // cbAll
+            // groupBox1
             // 
-            this.cbAll.AutoSize = true;
-            this.cbAll.Location = new System.Drawing.Point(30, 81);
-            this.cbAll.Name = "cbAll";
-            this.cbAll.Size = new System.Drawing.Size(120, 16);
-            this.cbAll.TabIndex = 16;
-            this.cbAll.Text = "所有文件一起排序";
-            this.cbAll.UseVisualStyleBackColor = true;
+            this.groupBox1.Controls.Add(this.buttonStart2);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.textBox2);
+            this.groupBox1.Controls.Add(this.button2);
+            this.groupBox1.Location = new System.Drawing.Point(38, 322);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(453, 130);
+            this.groupBox1.TabIndex = 15;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "排序3 - 字幕和视频在单独文件夹";
+            // 
+            // buttonStart2
+            // 
+            this.buttonStart2.Location = new System.Drawing.Point(359, 78);
+            this.buttonStart2.Name = "buttonStart2";
+            this.buttonStart2.Size = new System.Drawing.Size(75, 21);
+            this.buttonStart2.TabIndex = 15;
+            this.buttonStart2.Text = "开始排序";
+            this.buttonStart2.UseVisualStyleBackColor = true;
+            this.buttonStart2.Click += new System.EventHandler(this.buttonStart2_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(18, 32);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "选择文件夹";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(124, 32);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(211, 21);
+            this.textBox2.TabIndex = 9;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(359, 30);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 21);
+            this.button2.TabIndex = 0;
+            this.button2.Text = "选择";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.buttonStart0);
+            this.groupBox2.Controls.Add(this.label2);
+            this.groupBox2.Controls.Add(this.textBox0);
+            this.groupBox2.Controls.Add(this.button0);
+            this.groupBox2.Location = new System.Drawing.Point(38, 27);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(453, 130);
+            this.groupBox2.TabIndex = 16;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "排序1 - 文件内段子排序";
+            // 
+            // buttonStart0
+            // 
+            this.buttonStart0.Location = new System.Drawing.Point(359, 78);
+            this.buttonStart0.Name = "buttonStart0";
+            this.buttonStart0.Size = new System.Drawing.Size(75, 21);
+            this.buttonStart0.TabIndex = 15;
+            this.buttonStart0.Text = "开始排序";
+            this.buttonStart0.UseVisualStyleBackColor = true;
+            this.buttonStart0.Click += new System.EventHandler(this.buttonStart0_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(18, 32);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 12);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "选择文件夹";
+            // 
+            // textBox0
+            // 
+            this.textBox0.Location = new System.Drawing.Point(124, 32);
+            this.textBox0.Name = "textBox0";
+            this.textBox0.Size = new System.Drawing.Size(211, 21);
+            this.textBox0.TabIndex = 9;
+            // 
+            // button0
+            // 
+            this.button0.Location = new System.Drawing.Point(359, 30);
+            this.button0.Name = "button0";
+            this.button0.Size = new System.Drawing.Size(75, 21);
+            this.button0.TabIndex = 0;
+            this.button0.Text = "选择";
+            this.button0.UseVisualStyleBackColor = true;
+            this.button0.Click += new System.EventHandler(this.button0_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(545, 190);
+            this.ClientSize = new System.Drawing.Size(551, 492);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox4);
             this.Name = "Form1";
             this.Text = "语速排序";
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -118,7 +222,16 @@
         private System.Windows.Forms.TextBox tbFolder;
         private System.Windows.Forms.Button btnSelect;
         private System.Windows.Forms.Button btnAddSeqOK;
-        private System.Windows.Forms.CheckBox cbAll;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button buttonStart2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button buttonStart0;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox0;
+        private System.Windows.Forms.Button button0;
     }
 }
 

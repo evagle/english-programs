@@ -78,9 +78,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="src\Block.cs" />
+    <Compile Include="src\FileBlock.cs" />
     <Compile Include="src\FileHandler.cs" />
     <Compile Include="src\ITime.cs" />
+    <Compile Include="src\SortBySpeedInFile.cs" />
     <Compile Include="src\SplitToParagraphs.cs" />
+    <Compile Include="src\SortBySpeedByFolder.cs" />
     <Compile Include="src\SortBySpeed.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

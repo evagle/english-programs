@@ -43,12 +43,12 @@ namespace SrtTimeModify.src
         }
         private bool isTime(string line)
         {
-            Match match = Regex.Match(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{1,3}");
+            Match match = Regex.Match(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2}[,\.][0-9]{1,3}");
             return match.Success;
         }
         public void initTime(string line)
         {
-            MatchCollection matches = Regex.Matches(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{1,3}");
+            MatchCollection matches = Regex.Matches(line, @"[0-9]{2}:[0-9]{2}:[0-9]{2}[,\.][0-9]{1,3}");
             int i = 0;
             foreach (Match match in matches)
             {
