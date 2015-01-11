@@ -84,7 +84,7 @@ namespace SrtTimeModify.src
         {
 
             articleToParagraphBlocks();
-            mergeBlockByTimeSpanBetweenParagraphs(timeBetweenParagraphs);
+            //mergeBlockByTimeSpanBetweenParagraphs(timeBetweenParagraphs);
             addTime(this.timeSpan);
             
 
