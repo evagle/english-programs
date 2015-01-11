@@ -49,9 +49,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.textBoxParagraphSpan2 = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
@@ -250,9 +247,6 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.checkBox2);
-            this.groupBox3.Controls.Add(this.label8);
-            this.groupBox3.Controls.Add(this.textBoxParagraphSpan2);
-            this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.button5);
             this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.textBox4);
@@ -261,7 +255,7 @@
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Location = new System.Drawing.Point(39, 269);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(453, 171);
+            this.groupBox3.Size = new System.Drawing.Size(453, 135);
             this.groupBox3.TabIndex = 13;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "第一步--分段和修改时间一起";
@@ -269,41 +263,16 @@
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(19, 132);
+            this.checkBox2.Location = new System.Drawing.Point(19, 104);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(288, 16);
             this.checkBox2.TabIndex = 18;
             this.checkBox2.Text = "将过长的时间间隔分成多个没有字幕的小的时间段";
             this.checkBox2.UseVisualStyleBackColor = true;
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(321, 101);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(17, 12);
-            this.label8.TabIndex = 17;
-            this.label8.Text = "秒";
-            // 
-            // textBoxParagraphSpan2
-            // 
-            this.textBoxParagraphSpan2.Location = new System.Drawing.Point(124, 98);
-            this.textBoxParagraphSpan2.Name = "textBoxParagraphSpan2";
-            this.textBoxParagraphSpan2.Size = new System.Drawing.Size(191, 21);
-            this.textBoxParagraphSpan2.TabIndex = 16;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(14, 98);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(77, 12);
-            this.label9.TabIndex = 15;
-            this.label9.Text = "段间最小时差";
-            // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(358, 127);
+            this.button5.Location = new System.Drawing.Point(357, 101);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 21);
             this.button5.TabIndex = 14;
@@ -333,7 +302,7 @@
             this.groupBox4.Controls.Add(this.label10);
             this.groupBox4.Controls.Add(this.tBAddTitleSeq);
             this.groupBox4.Controls.Add(this.btnAddTitleSeq);
-            this.groupBox4.Location = new System.Drawing.Point(39, 460);
+            this.groupBox4.Location = new System.Drawing.Point(39, 432);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(453, 92);
             this.groupBox4.TabIndex = 14;
@@ -424,9 +393,6 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBoxParagraphSpan1;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBoxParagraphSpan2;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.GroupBox groupBox4;

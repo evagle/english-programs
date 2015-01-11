@@ -102,9 +102,9 @@ namespace SrtTimeModify
             for (int i = 0; i < files.Length; i++)
             {
                 int span1 = (int)(Convert.ToDouble(this.textBox4.Text)*1000);
-                int span2 = (int)(Convert.ToDouble(this.textBoxParagraphSpan2.Text)*1000);
+               // int span2 = (int)(Convert.ToDouble(this.textBoxParagraphSpan2.Text)*1000);
                 splitAndFixTime(files[i].FullName, span1,
-                    checkBox2.Checked, span2);
+                    checkBox2.Checked, 0);
             }
             DirectoryInfo[] dirs = dirInfo.GetDirectories();
             for (int i = 0; i < dirs.Length; i++)
