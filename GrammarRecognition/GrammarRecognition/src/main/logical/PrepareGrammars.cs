@@ -47,7 +47,7 @@ namespace GrammarRecognition.src.main.logical
                     }
                     else
                         set.Add(parts[2]);
-                    if (parts.Length == 5)
+                    if (parts.Length == 5 && parts[3].Trim() != "")
                     {
                         grammar = new Grammar();
                         grammar.Type = Grammar.T_GRAMMAR;
@@ -56,14 +56,17 @@ namespace GrammarRecognition.src.main.logical
                         grammar.Name = parts[1];
                         grammar.Abbreviation = parts[2];
                         grammar.Pattern = removeSpace(parts[3].Split(new char[] { '+', ' ' }));
-                        grammar.PatternLowerCase = this.toLower(grammar.Pattern);
-                        grammar.Seq = Int32.Parse(parts[4]);
-                        grammars.Add(grammar);
-                       
-                        
-                        expandGrammar(grammar, ignoreList);
+                        if (grammar.Pattern.Length > 0)
+                        {
+                            grammar.PatternLowerCase = this.toLower(grammar.Pattern);
+                            grammar.Seq = Int32.Parse(parts[4]);
+                            grammars.Add(grammar);
+
+
+                            expandGrammar(grammar, ignoreList);
+                        }
                     }
-                    else if (parts.Length == 4)
+                    else if (parts.Length == 4 && parts[2].Trim() != "")
                     {
                         grammar = new Grammar();
                         grammar.Type = Grammar.T_PHRASE;

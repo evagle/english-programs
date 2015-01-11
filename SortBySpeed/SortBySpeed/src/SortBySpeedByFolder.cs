@@ -20,12 +20,16 @@ namespace SrtTimeModify.src
         private Hashtable handledFiles = new Hashtable();
 
         private List<FileBlock> fileBlockList = new List<FileBlock>();
-
-        public SortBySpeedByFolder(string folderPath)
+        private bool outputSpeed;
+        public SortBySpeedByFolder(string folderPath, bool outputSpeed)
         {
             this.foler = folderPath;
-     
+            this.outputSpeed = outputSpeed;
             this.resultFolder = this.foler + "-排序";
+            if (Directory.Exists(this.resultFolder))
+            {
+                Directory.Delete(this.resultFolder, true);
+            }
             Directory.CreateDirectory(this.resultFolder);
             this.fileList = FileHandler.listFiles(folderPath, "");
 
@@ -44,9 +48,7 @@ namespace SrtTimeModify.src
 
                 string srtfile = findSrtFile(dirs[i].FullName);
                 if (srtfile != "")
-                    fileBlockList.Add(new FileBlock(srtfile));
-
-                //this.articleToParagraphBlocks(dirs[i].FullName); 
+                    fileBlockList.Add(new FileBlock(srtfile));; 
             }
         }
 
@@ -87,11 +89,32 @@ namespace SrtTimeModify.src
 
             this.copyDirectory(ofolder, destFolder);
         }
+        public void printBlockList(string ofolder, string filename, int seq, List<Block> blocks)
+        {
+            string folderName = ofolder.Substring(ofolder.LastIndexOf("\\"));
+            folderName = seq + folderName.Substring(folderName.IndexOf("-") + 1);
+            string destFolder = this.resultFolder + "\\" + folderName;
+
+            string destFile = destFolder + filename;
+            //destFile = addSeqToFileName(destFile, seq);
+            if (File.Exists(destFile))
+            {
+                File.Delete(destFile);
+            }
+            foreach (Block b in blocks)
+            {
+                FileHandler.write(destFile, b.linesWithSpeed, true);
+            }
+        }
+
 
         public void  printBySpeed()
         {
             for (int i = 0; i < fileBlockList.Count; i++) {
-                this.moveFolder(fileBlockList[i].folderName, i + 1); 
+                this.moveFolder(fileBlockList[i].folderName, i + 1);
+                if (this.outputSpeed) {
+                    this.printBlockList(fileBlockList[i].folderName, fileBlockList[i].name, i + 1, fileBlockList[i].blocks);
+                }
             }
         }
 

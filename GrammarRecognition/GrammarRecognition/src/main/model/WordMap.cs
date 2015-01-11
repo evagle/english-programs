@@ -66,7 +66,10 @@ namespace GrammarRecognition.src.main.model
                         wordList.Contains(word);
                 }
             }
-            return wordList.Contains(word.ToLower()); 
+            if (listName[listName.Length - 1] - '0' >= 0 && listName[listName.Length - 1] - '0' <= 9)
+                return wordList.Contains(word);
+            else
+                return wordList.Contains(word) || wordList.Contains(word.ToLower()); 
         }
     }
 }

@@ -76,12 +76,14 @@ namespace GrammarRecognition.src.main.model
 
         public string[] lineToWords(string str)
         {
-            Regex r = new Regex("[^A-Za-z0-9 \r\n\t-'’,?:：]");
+            Regex r = new Regex("[^A-Za-z0-9 \r\n\t-'’,?:：.!]");
             String rawtext = r.Replace(str, "");
             r = new Regex("[ \t\r\n:：]+");
             rawtext = r.Replace(rawtext, " ");
             rawtext = rawtext.Replace(",", " , ");
             rawtext = rawtext.Replace("?", " ? ");
+            rawtext = rawtext.Replace(".", " . ");
+            rawtext = rawtext.Replace("!", " ! ");
 
             return rawtext.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }

@@ -53,6 +53,8 @@ namespace GrammarRecognition.src.main.logical
                         {
                             paragraphText = paragraphText.Replace('，', ',');
                             paragraphText = paragraphText.Replace('？', '?');
+                            paragraphText = paragraphText.Replace('！', '!');
+                            paragraphText = paragraphText.Replace('。', '.');
                             Paragraph model = new Paragraph(paragraphText);
                             paragraphs.Add(model);
                             paragraphText = "";

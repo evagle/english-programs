@@ -37,7 +37,7 @@ namespace SrtTimeModify
             }
 
 
-            SortBySpeed s = new SortBySpeed(tbFolder.Text);
+            SortBySpeed s = new SortBySpeed(tbFolder.Text, checkBox2.Checked);
              
             MessageBox.Show("成功,结果在：“" + tbFolder.Text + "-排序” 文件夹 ", "排序成功");
         }
@@ -51,7 +51,7 @@ namespace SrtTimeModify
             }
 
 
-            SortBySpeedByFolder s = new SortBySpeedByFolder(textBox2.Text);
+            SortBySpeedByFolder s = new SortBySpeedByFolder(textBox2.Text, checkBox3.Checked);
 
             MessageBox.Show("成功,结果在：“" + textBox2.Text + "-排序” 文件夹 ", "排序成功");
         }
@@ -84,7 +84,7 @@ namespace SrtTimeModify
                 return;
             }
 
-            SortBySpeedInFile s = new SortBySpeedInFile(textBox0.Text);
+            SortBySpeedInFile s = new SortBySpeedInFile(textBox0.Text, checkBox1.Checked);
 
             MessageBox.Show("成功,结果在：“" + textBox0.Text + "-排序” 文件夹 ", "排序成功");
         }

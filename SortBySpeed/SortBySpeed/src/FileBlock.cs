@@ -8,7 +8,8 @@ namespace SrtTimeModify.src
     class FileBlock : IComparable
     {
        
-        public double speed = 0;
+        public double aveSpeed = 0;
+        public double maxSpeed = 0;
         public int wordCount = 0;
         public double totalTime = 0;
         public string fileName; //文件名带路径
@@ -28,23 +29,33 @@ namespace SrtTimeModify.src
             {
                 if (list[i].Trim().Equals("") && b.startTime != null && b.endTime != null)
                 {
+                    b.addLine(list[i], false);
+                    b.addBlockSpeed();
                     blocks.Add(b);
                     b = new Block();
+                    //b.addLine(list[i]);
                 }
                 else
                 {
-                    b.addLine(list[i]);
+                    b.addLine(list[i], false);
                 }
             }
             if (b.startTime != null && b.endTime != null)
+            {
+                b.addBlockSpeed();
                 blocks.Add(b);
+            }
 
             foreach (Block block in blocks) {
                 wordCount += block.wordCount;
                 totalTime += block.totalTime;
+                if (block.maxSpeed > this.maxSpeed) {
+                    this.maxSpeed = block.maxSpeed;
+                }
             }
+           // Console.WriteLine(file + " = " + this.maxSpeed);
             if(totalTime > 0)
-                speed = wordCount / totalTime;
+                aveSpeed = wordCount / totalTime;
         }
 
 
@@ -52,7 +63,7 @@ namespace SrtTimeModify.src
 
         public int CompareTo(object obj)
         {
-            if (this.speed > ((FileBlock)obj).speed)
+            if (this.maxSpeed > ((FileBlock)obj).maxSpeed)
                 return 1;
             else
                 return -1;

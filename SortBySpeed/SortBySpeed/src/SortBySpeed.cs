@@ -18,22 +18,29 @@ namespace SrtTimeModify.src
         private List<string> fileList = new List<string>();
         private Hashtable handledFiles = new Hashtable();
         private List<FileBlock> fileBlockList = new List<FileBlock>();
-      
-        public SortBySpeed(string folderPath)
+        private bool outputSpeed;
+
+        public SortBySpeed(string folderPath, bool outputSpeed)
         {
             this.foler = folderPath;
-            //this.sortAll = sortAll;
+            this.outputSpeed = outputSpeed;
+       
             this.resultFolder = this.foler + "-排序";
+            if (Directory.Exists(this.resultFolder)) {
+                Directory.Delete(this.resultFolder, true);
+            }
             Directory.CreateDirectory(this.resultFolder);
             this.fileList = FileHandler.listFiles(folderPath, "");
 
             this.listFiles(this.foler);
             this.sort();
             this.printBySpeed();
+            
         }
 
         public void listFiles(string path)
         {
+
             DirectoryInfo dirInfo = new DirectoryInfo(path);
             FileInfo[] files = dirInfo.GetFiles();
 
@@ -76,7 +83,7 @@ namespace SrtTimeModify.src
             string baseFileName = file.Replace(".chs&eng.srt", "").Replace(".eng&chs.srt", "").Replace(".eng.srt", "").Replace(".chs.srt", "");
                
             foreach (string fileName in fileList) { 
-                if (fileName.StartsWith(baseFileName) && !fileName.Equals(file) && File.Exists(fileName))
+                if (fileName.StartsWith(baseFileName) &&  File.Exists(fileName))
                 {
                     string destFile = this.addSeqToFileName(fileName.Replace(this.foler, this.resultFolder), seq);
                     File.Copy(fileName, destFile);
@@ -86,16 +93,14 @@ namespace SrtTimeModify.src
 
         public void  printBySpeed()
         {
-            //if (sortAll)
-            //    printBlockList(this.resultFolder + "\\所有文件一起排序.txt", allBlocks);
-            /*for (int i = 0; i < table.Keys.Count; i++) {
-                string key = table.Keys[i];
-                printBlockList(key, i, (List<Block>)table[key]);
-            }*/
+           
             for (int i = 0; i < fileBlockList.Count; i++) {
-                this.printBlockList(fileBlockList[i].fileName, i+1, fileBlockList[i].blocks);
-            }
+                this.moveRelativeFile(fileBlockList[i].fileName, i + 1);
+                if (this.outputSpeed) {
+                    this.printBlockList(fileBlockList[i].fileName, i + 1, fileBlockList[i].blocks);
+                }
                
+            } 
 
         }
 
@@ -103,11 +108,13 @@ namespace SrtTimeModify.src
         {
             string destFile = file.Replace(this.foler, this.resultFolder);
             destFile = addSeqToFileName(destFile, seq);
+            if (File.Exists(destFile)) {
+                File.Delete(destFile);
+            }
             foreach (Block b in blocks)
             {
-                FileHandler.write(destFile, b.lines, true);
+                FileHandler.write(destFile, b.linesWithSpeed, true);
             }
-            this.moveRelativeFile(file, seq);
         }
 
     }
