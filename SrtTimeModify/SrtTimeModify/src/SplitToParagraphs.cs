@@ -23,9 +23,10 @@ namespace SrtTimeModify.src
                     tmp.Add(srt[i]);
                 }
             }
-            //按照句号，问号，感叹号拆开
+            //按照句号，感叹号拆开, 问号不拆开，因为会有回答
             for (int i = 0; i < tmp.Count; i++)
             {
+                
                 if (isTime(tmp[i]))
                 {
                     if (i - 1 >= 0 && isSentEnd(tmp[i - 1]) )
@@ -61,12 +62,97 @@ namespace SrtTimeModify.src
         }
         private bool isSentEnd(string line)
         {
-            if (line.EndsWith(".") || line.EndsWith("?") || line.EndsWith("!") ||
-                line.EndsWith("？" )|| line.EndsWith("！") || line.EndsWith("。"))
-            {
-                return true;
+
+            // 将所有的括号及括号里的内容删除
+            string str = "";
+            bool flag = true;
+            for (int i = 0; i < line.Length; i++) {
+                if (line[i] == '(' || line[i] == '（' || line[i] == '<') {
+                    flag = false;
+                }
+                else if (line[i] == ')' || line[i] == '）' || line[i] == '>')
+                {
+                    flag = true;
+                }
+                else {
+                    if (flag) {
+                        str += line.Substring(i, 1);
+                    }
+                }
             }
-            return false;
+
+
+            str = str.Replace('·', '.');
+            str = str.Replace('。', '.');
+            /*str = str.Replace('，', ',');
+            str = str.Replace('。', '.');
+            str = str.Replace('！', '!');
+            str = str.Replace('〉','>');
+            str = str.Replace('《','<');
+            str = str.Replace('》','>');
+            str = str.Replace('？','?');
+            
+            str = str.Replace('‘','\'');
+            str = str.Replace('’','\'');
+            str = str.Replace('“','"');
+            str = str.Replace('”','"');
+            str = str.Replace('（','(');
+            str = str.Replace('）',')');*/
+
+            int dot = -1; // 句中是否含有句号感叹号
+            bool endWithOther = false; // 以其他标点结尾，例如逗号，问号，省略号
+
+            for (int i = str.Length - 1; i >= 0; i--) {
+                if (str[i] == '!' || str[i] == '！') {
+                    dot = i;
+                    break;
+                }
+                if (str[i] == '.' && (i - 1 < 0 || str[i - 1] != '.') && ( i + 1 >= str.Length || str[i + 1] != '.')) {
+                    
+                    dot = i;
+                    break;        
+                }
+            }
+            // 找到了句号或者感叹号，继续判定结尾符号
+            if (dot >= 0) {
+                for (int i = dot + 1; i < str.Length; i++) {
+                    if (str[i] == ',' || str[i] == '?' || str[i] == '，' || str[i] == '？') {
+                        return false;
+                    }
+                    if ((i + 2 < str.Length && str.Substring(i, 3) == "...")  
+                        || (i + 1 < str.Length && str.Substring(i, 2) == "。。")) {
+                        return false;
+                    } 
+                }
+                return true;
+            }   
+            else { // 没有找到句号和感叹号，说明这句不是句子结尾
+                return false;
+            }
+
+                // 对于加了语法的句子，需要先忽略语法，否则会导致结尾判断不正确
+                /*line = line.TrimEnd();
+                if (line.EndsWith(")")) {
+                    int i = line.Length - 1;
+                    for (; i >= 0; i--) {
+                        if(line[i] == '(') {
+                            break;
+                        }
+                    }
+                    line = line.Substring(0,i);
+                }
+            
+
+                if (line.EndsWith("..") || line.EndsWith("。。"))
+                {
+                    return false;
+                }
+                else if (line.EndsWith(".") || line.EndsWith("!") ||
+                   line.EndsWith("！") || line.EndsWith("。"))
+                {
+                    return true;
+                }*/
+                return false;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace SrtTimeModify.src
     {
         public ITime startTime=null;
         public ITime endTime=null;
-        
+        public int timeSpanWithPreBlock = 0;
         private List<string> lines = new List<string>();
 
         public Block mergeBlock(Block other) {
@@ -39,6 +39,27 @@ namespace SrtTimeModify.src
             lines[start] = startTime.strTime + lines[start].Substring(12);
             lines[end] = lines[end].Substring(0,17)+ endTime.strTime;
 
+            return lines;
+        }
+        public List<string> getDebugLines()
+        {
+            int start = -1;
+            int end = 0;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (isTime(lines[i]))
+                {
+                    if (start == -1)
+                        start = i;
+                    end = i;
+                }
+            }
+            lines[start] = startTime.strTime + lines[start].Substring(12); 
+            lines[end] = lines[end].Substring(0, 17) + endTime.strTime;
+
+            if (timeSpanWithPreBlock >0) {
+                lines[start] = lines[start] + "*******临界分段点，与上一段时间间隔为： "+ timeSpanWithPreBlock + " 毫秒*******";
+            }
             return lines;
         }
         private bool isTime(string line)

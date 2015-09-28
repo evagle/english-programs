@@ -74,8 +74,6 @@ namespace SrtTimeModify
             {
                 this.textBox3.Text = dialog.SelectedPath;
             }
-
-
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -128,7 +126,8 @@ namespace SrtTimeModify
             Directory.CreateDirectory(path + "-改好时间\\");
             FileHandler.writeStartTimeEndTime(path + "-改好时间\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
             FileHandler.write(path + "-改好时间\\改好时间-" + name, list);
-        
+            FileHandler.write(path + "-改好时间\\调试用-改好时间-" + name, stretch.getDebugResultArticle());
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -144,12 +143,12 @@ namespace SrtTimeModify
 
             SplitToParagraphs merge = new SplitToParagraphs();
             List<string> list = merge.split(FileHandler.read(text));
-            int secondBetweenParagraphs = int.Parse(this.textBoxParagraphSpan1.Text);
+            int secondBetweenParagraphs = (int)(Convert.ToDouble(this.textBoxParagraphSpan1.Text) * 1000);
 
             StretchTime stretch = new StretchTime(list,0,false);
             stretch.articleToParagraphBlocks();
             stretch.mergeBlockByTimeSpanBetweenParagraphs(secondBetweenParagraphs);
-
+             
 
             FileHandler.write(path + "\\分好段-" + name, stretch.getResultArticle());
             MessageBox.Show("已经输出到：" + path + "\\分好段-" + name);

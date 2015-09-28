@@ -41,14 +41,29 @@ namespace ArticleRecognize.src.main
         private List<String> cleanSelf(List<String> list)
         {
             list.Sort();
-            for (int i = list.Count - 1; i > 0; i--)
+            List<String> remained = new List<String>();
+            List<bool> duplicate = new List<bool>();
+            for (int i = 0; i < list.Count; i++) {
+                duplicate.Insert(i,false);
+            }
+          
+            for (int i = list.Count - 1; i >= 0; i--)
             {
-                if (isSimilar(list.ElementAt(i), list.ElementAt(i - 1)))
+                //  之前没有与i重复的段落
+                if (!duplicate[i])
                 {
-                    list.RemoveAt(i);
+                    for (int j = i - 1; j >= 0; j--)
+                    {
+                        // 如果ｊ与ｉ重复，则保留ｉ，ｊ标记为已重复
+                        if (isSimilar(list[i], list[j]))
+                        {
+                            duplicate[j] = true;
+                        }
+                    }
+                    remained.Add(list[i]);
                 }
             }
-            return list;
+            return remained;
         }
         public List<String> cleanSelf(String file)
         {
@@ -80,12 +95,18 @@ namespace ArticleRecognize.src.main
                         article.Append(line+"\r\n");
                     line = reader.ReadLine();
                 }
+                string last = article.ToString();
+                if (last != "") {
+                    list.Add(last);
+                }
+
                 reader.Close();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
             }
+
             return list;
         }
         private  Boolean isSimilar(String article1,String article2)

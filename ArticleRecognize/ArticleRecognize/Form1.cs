@@ -56,7 +56,7 @@ namespace ArticleRecognize
         }
         private void print(String path, List<String> articles)
         {
-            StreamWriter writer = new StreamWriter(path);
+            StreamWriter writer = new StreamWriter(path, false, Encoding.GetEncoding("gbk"));
             foreach (String str in articles)
             {
                 writer.WriteLine(str);

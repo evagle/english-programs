@@ -69,7 +69,8 @@ namespace GrammarRecognition.src.main.model
                     int start = 0;
                     for (int i = 0; i < line.Length; i++)
                     {
-                        if (i + 2 < line.Length && line.Substring(i, 3) == "...") {
+                        if (i + 2 < line.Length && line.Substring(i, 3) == "...")
+                        {
                             i = i + 2;
                             continue;
                         } 

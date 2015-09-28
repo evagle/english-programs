@@ -9,6 +9,7 @@ namespace SrtTimeModify.src
     {
         private List<Block> blocks = new List<Block>();
         private bool isFillLongTimeSpan;
+        public static int timeBetweenParagraphsMiliSecond;
         public List<Block> getBlockList()
         {
             return this.blocks;
@@ -40,8 +41,8 @@ namespace SrtTimeModify.src
             for (int i = 1; i < blocks.Count; i++)
             {
                 Block post = blocks[i];
-                 
-                if (post.startTime.sub(pre.endTime) < timeBetweenParagraphs)
+                double span = post.startTime.sub(pre.endTime);
+                if (span < timeBetweenParagraphs)
                 {
                     pre = pre.mergeBlock(post);
                 }
@@ -49,9 +50,24 @@ namespace SrtTimeModify.src
                     tmpList.Add(pre);
                     pre = post;
                 }
+                if (span >= timeBetweenParagraphs && span <= timeBetweenParagraphs + 200)
+                {
+                    post.timeSpanWithPreBlock = (int)span;
+                }
             }
             tmpList.Add(pre);
             blocks = tmpList;
+        }
+        public List<String> getDebugResultArticle()
+        {
+            List<string> result = new List<string>();
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                result.AddRange(blocks[i].getDebugLines());
+                result.Add("");
+            }
+
+            return result;
         }
         public List<String> getResultArticle(){
             List<string> result = new List<string>();
@@ -82,7 +98,7 @@ namespace SrtTimeModify.src
         }
         public List<string> stretch(int timeBetweenParagraphs)
         {
-
+            timeBetweenParagraphsMiliSecond = timeBetweenParagraphs;
             articleToParagraphBlocks();
             mergeBlockByTimeSpanBetweenParagraphs(timeBetweenParagraphs);
             addTime(this.timeSpan);
