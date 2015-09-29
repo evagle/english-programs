@@ -12,7 +12,7 @@ namespace GrammarRecognition.src.main.logical
     {
         private Hashtable associates = new Hashtable();
         
-        public void prepare(string path) 
+        public void prepare(string path, int showError) 
         {
             try
             {
@@ -42,7 +42,8 @@ namespace GrammarRecognition.src.main.logical
             }
             catch (Exception e)
             {
-                MessageBox.Show("读取文件发生错误:" + path+", error:"+e.Message);
+                if (showError > 0)
+                    MessageBox.Show("读取文件发生错误:" + path+", error:"+e.Message);
             }
         }
         public bool isAssociateWord(String word, String other)

@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using GrammarRecognition.src.main.logical;
 using GrammarRecognition.src.main.model;
+using System.IO;
  
  
 namespace GrammarRecognition
@@ -86,8 +87,8 @@ namespace GrammarRecognition
             tbGrammar.Text = "D:\\刘实-英语项目\\语法识别程序\\语法加固定搭配20140807修改版.txt";
             tbOutDir.Text = "D:\\刘实-英语项目\\语法识别程序\\结果目录";
             tbParagraph.Text = "D:\\刘实-英语项目\\语法识别程序\\测试文章";
-             * 
-            */
+             */
+            
            /*
             tbPOS.Text = "G:\\Downloads\\刘实-英语项目\\语法识别程序\\词表";
             tbGrammar.Text = "G:\\Downloads\\刘实-英语项目\\语法识别程序\\语法加固定搭配测试1.txt";
@@ -123,7 +124,7 @@ namespace GrammarRecognition
                 return;
             }
 
-            controler = new Controler(tbPOS.Text,tbGrammar.Text,
+            /*controler = new Controler(tbPOS.Text,tbGrammar.Text,
                 tbParagraph.Text,tbOutDir.Text, tbAssociate.Text,cbAssociate.Checked);
             foreach(Grammar g in controler.getGrammarList()){
                 cbGrammar.Items.Add(g.Abbreviation);
@@ -137,9 +138,35 @@ namespace GrammarRecognition
             }
             rtbNameAbbr.Text = tmp;
             rtbNameAbbr.Font = new System.Drawing.Font("宋体", 12);
+            */
+            listFiles(tbParagraph.Text);
+
+
             MessageBox.Show("已经完成");
         }
-
+        public void listFiles(String dirPath)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
+            FileInfo[] files = dirInfo.GetFiles();
+            for (int i = 0; i < files.Length; i++)
+            {
+                //handleFile(files[i].FullName);
+                string fileName = files[i].FullName;
+                int pos = fileName.LastIndexOf(".");
+                string suffix = fileName.Substring(pos , fileName.Length-pos);
+                if (!fileName.EndsWith("-加语法"+suffix))
+                {
+                    string outFileName = fileName.Substring(0, pos) + "-加语法" + suffix;
+                    controler = new Controler(tbPOS.Text, tbGrammar.Text,
+                    fileName, outFileName, tbAssociate.Text, cbAssociate.Checked, 0);
+                }
+            }
+            DirectoryInfo[] dirs = dirInfo.GetDirectories();
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                listFiles(dirs[i].FullName);
+            }
+        }
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Dispose();

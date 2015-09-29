@@ -20,6 +20,14 @@ namespace GrammarRecognition.src.main.logical
             this.paragraphDirPath = paragraphDirPath;
             listFiles(paragraphDirPath);
         }
+        public PrepareSentences(String paragraphFile, List<Paragraph> paragraphs, List<Sentence> sentences, int mode)
+        {
+            this.paragraphs = paragraphs;
+            this.sentences = sentences;
+            //this.paragraphDirPath = paragraphDirPath;
+            //listFiles(paragraphDirPath);
+            handleFile(paragraphFile);
+        }
         public void listFiles(String dirPath)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(dirPath);

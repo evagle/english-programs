@@ -21,7 +21,7 @@ namespace GrammarRecognition.src.main.logical
             grammars = new List<Grammar>();
             this.wordmap = wordmap;
         }
-        public  List<Grammar> getGrammars()
+        public  List<Grammar> getGrammars(int showError)
         {
             HashSet<string> set = new HashSet<string>();
             List<String> ignoreList = new List<String>();
@@ -84,7 +84,8 @@ namespace GrammarRecognition.src.main.logical
 
                     }
                     else {
-                        MessageBox.Show("语法格式不对,请先修改：" + line);
+                        if(showError > 0)
+                            MessageBox.Show("语法格式不对,请先修改：" + line);
                     }
                     line = reader.ReadLine();
                 }
@@ -96,7 +97,8 @@ namespace GrammarRecognition.src.main.logical
             Console.WriteLine("abbr num:" + set.Count);
             if (duplicateGrammars.ToString() != "")
             {
-                MessageBox.Show("以下语法有重复，请及时修改" + duplicateGrammars.ToString());
+                if (showError > 0)
+                    MessageBox.Show("以下语法有重复，请及时修改" + duplicateGrammars.ToString());
             }
             return grammars;
         }

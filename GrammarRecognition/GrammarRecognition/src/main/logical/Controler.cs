@@ -24,19 +24,19 @@ namespace GrammarRecognition.src.main.logical
         private bool useAssociate;
 
         public Controler(String POSPath, String grammarPath,
-            String paragraphPath,String outPath, String associateFilePath,bool useAssociate)
+            String paragraphFile, String outPath, String associateFilePath, bool useAssociate, int mode)
         {
             PrepareWordList prepareWordList = new PrepareWordList();
             wordmap = prepareWordList.getWordList(POSPath);
             this.useAssociate = useAssociate;
-            
+
             paragraphs = new List<Paragraph>();
             sentences = new List<Sentence>();
             gramIndex = new Hashtable();
-            new PrepareSentences(paragraphPath,paragraphs,sentences);
+            new PrepareSentences(paragraphFile, paragraphs, sentences, mode);
 
-            PrepareGrammars prepareGrammar = new PrepareGrammars(grammarPath,wordmap);
-            grammars = prepareGrammar.getGrammars();
+            PrepareGrammars prepareGrammar = new PrepareGrammars(grammarPath, wordmap);
+            grammars = prepareGrammar.getGrammars(0);
             noReapeatGrammars = new List<Grammar>();
             HashSet<String> nameSet = new HashSet<String>();
             foreach (Grammar g in grammars)
@@ -53,7 +53,66 @@ namespace GrammarRecognition.src.main.logical
             if (this.useAssociate)
             {
                 associateWords = new AssociateWords();
-                associateWords.prepare(associateFilePath);
+                associateWords.prepare(associateFilePath, 0);
+            }
+            threadNum = 8;
+            finishedThreadNum = 0;
+            for (int i = 0; i < threadNum; i++)
+            {
+                ParameterizedThreadStart ParStart = new
+                ParameterizedThreadStart(this.findPatternInEachSentence);
+                Thread myThread = new
+                Thread(ParStart);
+                object o = i;
+                myThread.Start(o);
+            }
+            while (finishedThreadNum < threadNum)
+            {
+                Thread.Sleep(2000);
+            }
+
+            //findPatternInEachSentence();
+
+            //printParagraphHasGrammar(outPath + "\\出现过某语法的文章.txt");
+            //printSentencesHasGrammar(outPath + "\\出现过某语法的句子.txt", false);
+            //sortByGrammarSeq(outPath + "\\文章按照语法序号降序排序.txt");
+            //sortByGrammarSeqSentence(outPath + "\\句子按照语法序号降序排序.txt");
+            //printSentenceWithGrammar(outPath + "\\句子后面加上了它含有的语法.txt");
+            //grammarAppearFrequency(outPath);
+            printSentenceWithGrammar(outPath);
+        }
+
+        public Controler(String POSPath, String grammarPath,
+            String paragraphPath,String outPath, String associateFilePath,bool useAssociate)
+        {
+            PrepareWordList prepareWordList = new PrepareWordList();
+            wordmap = prepareWordList.getWordList(POSPath);
+            this.useAssociate = useAssociate;
+            
+            paragraphs = new List<Paragraph>();
+            sentences = new List<Sentence>();
+            gramIndex = new Hashtable();
+            new PrepareSentences(paragraphPath,paragraphs,sentences);
+
+            PrepareGrammars prepareGrammar = new PrepareGrammars(grammarPath,wordmap);
+            grammars = prepareGrammar.getGrammars(1);
+            noReapeatGrammars = new List<Grammar>();
+            HashSet<String> nameSet = new HashSet<String>();
+            foreach (Grammar g in grammars)
+            {
+                if (!nameSet.Contains(g.Abbreviation))
+                {
+                    nameSet.Add(g.Abbreviation);
+                    noReapeatGrammars.Add(g);
+                }
+            }
+
+
+            //关联词表
+            if (this.useAssociate)
+            {
+                associateWords = new AssociateWords();
+                associateWords.prepare(associateFilePath, 1);
             }
             threadNum = 8;
             finishedThreadNum = 0;
