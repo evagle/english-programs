@@ -286,7 +286,7 @@ namespace GrammarRecognition.src.main.logical
                         writer.Write(s.Text);
                     //writer.Write("\r\n");
                 }
-                writer.Write("\r\n\r\n\r\n");
+                writer.Write("\r\n\r\n");
             }
             writer.Flush();
             writer.Close();

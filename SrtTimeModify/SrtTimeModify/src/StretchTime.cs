@@ -80,28 +80,36 @@ namespace SrtTimeModify.src
             return result;
         }
         private List<string> list;
-        private int timeSpan;
+        //private int timeSpan;
+        private int a = 0;
+        private double thresholdA; // 使用a^x来计算时间的阈值设置
         public List<string> startTimeEndTime;
         
         public StretchTime(List<string> list, int t, bool isFillLongTimeSpan)
         {
             this.list = list;
-            this.timeSpan = t;
+            this.a = t/1000;
             this.isFillLongTimeSpan = isFillLongTimeSpan;
             
         }
         public StretchTime(List<string> list)
         {
             this.list = list;
-            this.timeSpan = 0;
+            this.a = 1;
             this.isFillLongTimeSpan = false;
         }
+
+        public void setThresholdA(double threshold)
+        {
+            this.thresholdA = threshold;
+        }
+
         public List<string> stretch(int timeBetweenParagraphs)
         {
             timeBetweenParagraphsMiliSecond = timeBetweenParagraphs;
             articleToParagraphBlocks();
             mergeBlockByTimeSpanBetweenParagraphs(timeBetweenParagraphs);
-            addTime(this.timeSpan);
+            addTime(this.a);
             
 
             //如果上一段的结束时间的毫秒数比下一段的开始时间毫秒数还要大，那么交换
@@ -129,17 +137,23 @@ namespace SrtTimeModify.src
             }
             return this.startTimeEndTime;
         }
-        private void addTime(int t)
+        private void addTime(int a)
         {
+            if (a <= 0) {
+                a = 1;
+            }
             List<Block> tmp = new List<Block>();
             Block preBlock = null;
             Block postBlock = null;
+            int t = 0;
             for(int i=1;i<blocks.Count;i++){
                  preBlock = blocks[i-1];
                  postBlock = blocks[i];
                 int timeSpan = postBlock.startTime.intTime - preBlock.endTime.intTime;
-                if (timeSpan >= 2*t)
+                if (timeSpan >= this.thresholdA)
                 {
+                    
+                    t = (int)((Math.Log(timeSpan/1000.0, a))*1000);
                     postBlock.amendStartTime(-t);
                     preBlock.amendEndTime(t);
                     tmp.Add(preBlock);

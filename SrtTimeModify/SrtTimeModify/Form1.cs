@@ -30,40 +30,69 @@ namespace SrtTimeModify
 
         private void button2_Click(object sender, EventArgs e)
         {
-            
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            DialogResult result = openFileDialog.ShowDialog();
-            
-            if (result == DialogResult.OK) // Test result.
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择文件夹";
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                this.textBox2.Text = openFileDialog.FileName;
+                this.textBox2.Text = dialog.SelectedPath;
             }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (this.timeStretched.Text == null || this.timeStretched.Text.Equals(""))
-            {
-                MessageBox.Show("需要先填写间隔时间");
-                return;
-            }
-
+            /*this.textBox2.Text = "\\\\VBOXSVR\\ameliawang\\Downloads\\刘实-英语项目\\11-27字幕改动\\字幕1";
+            this.tb_A.Text = "3";
+            this.textBoxThreshold0.Text = "2";
+            */
             if (this.textBox2.Text == null || this.textBox2.Text.Equals(""))
             {
-                MessageBox.Show("需要先选择文件");
+                MessageBox.Show("需要先选择文件夹");
+                return;
+            }
+            if (this.tb_A.Text == null || this.tb_A.Text.Equals(""))
+            {
+                MessageBox.Show("需要先填写A值");
                 return;
             }
 
-            String fullPath = this.textBox2.Text ;
+           
+            listFiles0(this.textBox2.Text);
+            MessageBox.Show("时间修改完成");
+        }
+        public void listFiles0(string path)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            FileInfo[] files = dirInfo.GetFiles();
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                int span1 = (int)(Convert.ToDouble(this.tb_A.Text) * 1000);
+               
+                fixTime(files[i].FullName, span1,
+                    checkBox1.Checked);
+            }
+            DirectoryInfo[] dirs = dirInfo.GetDirectories();
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                listFiles(dirs[i].FullName);
+            }
+        }
+        private void fixTime(string fullPath, int span1, bool check)
+        {
+
             string path = fullPath.Substring(0, fullPath.LastIndexOf("\\"));
             string name = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
-            List<string> startEndTime = new List<string>();
-            StretchTime stretch = new StretchTime(FileHandler.read(fullPath), Convert.ToInt32(this.timeStretched.Text),checkBox1.Checked);
-            List<String> list = stretch.stretch(0);
-            FileHandler.writeStartTimeEndTime(path + "\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
-           
-            FileHandler.write(path + "\\改好时间-" + name, list);
-            MessageBox.Show("已经输出到：" + path + "\\改好时间-" + name);
+ 
+            StretchTime stretch = new StretchTime(FileHandler.read(fullPath), span1, check);
+        
+            stretch.setThresholdA(Convert.ToDouble(this.textBoxThreshold0.Text) * 1000);
+            List<string> list = stretch.stretch(0);
+
+            Directory.CreateDirectory(path + "-改好时间\\");
+            FileHandler.writeStartTimeEndTime(path + "-改好时间\\开始时间-结束时间-" + name, stretch.startTimeEndTime);
+            FileHandler.write(path + "-改好时间\\改好时间-" + name, list);
+             
+
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -78,9 +107,14 @@ namespace SrtTimeModify
 
         private void button5_Click(object sender, EventArgs e)
         {
+            /*this.textBox3.Text = "\\\\VBOXSVR\\ameliawang\\Downloads\\刘实-英语项目\\11-27字幕改动\\字幕1";
+            this.textBox4.Text = "3";
+            this.textBoxThreshold.Text = "2";
+            this.textBoxParagraphSpan2.Text = "0.5";
+            */
             if (this.textBox4.Text == null || this.textBox4.Text.Equals(""))
             {
-                MessageBox.Show("需要先填写时间延长几秒");
+                MessageBox.Show("需要先填写a值");
                 return;
             }
             if (this.textBox3.Text == null || this.textBox3.Text.Equals(""))
@@ -121,6 +155,7 @@ namespace SrtTimeModify
 
             List<string> list = merge.split(FileHandler.read(fullPath));
             StretchTime stretch = new StretchTime(list, span1, check);
+            stretch.setThresholdA(Convert.ToDouble(this.textBoxThreshold.Text) * 1000);
             list = stretch.stretch(span2);
             
             Directory.CreateDirectory(path + "-改好时间\\");
@@ -146,6 +181,7 @@ namespace SrtTimeModify
             int secondBetweenParagraphs = (int)(Convert.ToDouble(this.textBoxParagraphSpan1.Text) * 1000);
 
             StretchTime stretch = new StretchTime(list,0,false);
+            stretch.setThresholdA(Convert.ToDouble(this.textBoxThreshold.Text) * 1000);
             stretch.articleToParagraphBlocks();
             stretch.mergeBlockByTimeSpanBetweenParagraphs(secondBetweenParagraphs);
              
