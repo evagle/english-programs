@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using PaperReorganization.src.main.logical;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace PaperReorganization.src.main.model
 {
@@ -36,7 +37,12 @@ namespace PaperReorganization.src.main.model
                         CLog.debug("生词表格式错误（前面单词，后面词频，空格隔开）："+sLine);
                         continue;
                     }
-                    int frequency = Convert.ToInt32(tmp[1]);
+                    int frequency = 0;
+                    if (isInt(tmp[1])) {
+                        frequency = Convert.ToInt32(tmp[1]);
+                    } else {
+                        CLog.error("生词表初始化错误。单词词频不是整数。内容："+sLine);
+                    }
                     if (frequency <= 0) {
                         CLog.debug("生词表词频错误：" + sLine);
                         continue;
@@ -53,9 +59,14 @@ namespace PaperReorganization.src.main.model
             }
             catch (Exception e)
             {
-                CLog.error("生词表初始化错误：：error:" + e.Message + "  trace:" + e.StackTrace);
+                CLog.error("生词表初始化错误：error:" + e.Message + "  trace:" + e.StackTrace);
                 Console.WriteLine(e.StackTrace);
             }        
+        }
+
+        public static bool isInt(string value)
+        {
+            return Regex.IsMatch(value, @"^[+-]?\d*$");
         }
 
         public static int find(String word)

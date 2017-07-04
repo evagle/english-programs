@@ -63,8 +63,12 @@ namespace PaperReorganization
                 Config.shengCiCiPingQuanZhi = Convert.ToInt32(this.textBoxPingJunCiPing.Text);
                 Config.grammarQuanZhi = Convert.ToInt32(this.textBoxYuFa.Text);
                 Config.grammarDensity = Convert.ToInt32(this.textBoxYuFaMiDu.Text);
-                
-                string[] bili = this.textBoxTiXingBiLi.Text.Split(new Char[] { ':' });
+
+
+                string biliStr = this.textBoxTiXingBiLi.Text;
+                biliStr = biliStr.Replace("：", ":");
+                biliStr = biliStr.Replace(" ", "");
+                string[] bili = biliStr.Split(new Char[] { ':' });
                 Config.tiXingBiLi = new List<int>();
                 foreach (string s in bili)
                 {
