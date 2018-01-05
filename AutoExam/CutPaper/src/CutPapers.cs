@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
+using PaperReorganization.src.main.logical;
 
 namespace CutPaper.src.cutpaper
 {
@@ -107,42 +108,61 @@ namespace CutPaper.src.cutpaper
             {
                 blocks = findKeyLineBlock(blocks, paper);
             }
-            catch (Exception e) { Console.WriteLine("findKeyLineBlock:" + e.Message); }
+            catch (Exception e) { 
+                Console.WriteLine("findKeyLineBlock:" + e.Message);
+                CLog.error("找标题行出错："+e.Message+"   -- "+e.StackTrace);
+            }
             try
             {
                 setRightBlockTag(blocks);
             }
-            catch (Exception e) { Console.WriteLine("setRightBlockTag:"+e.Message); }
+            catch (Exception e) { 
+                Console.WriteLine("setRightBlockTag:"+e.Message);
+                CLog.error("设置段落tag错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 removeAttentionBlock(blocks);
             }
-            catch (Exception e) { Console.WriteLine("removeAttentionBlock:" + e.Message); }
+            catch (Exception e) { 
+                Console.WriteLine("removeAttentionBlock:" + e.Message);
+                CLog.error("删除包含注意的段落出错：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 finalBlocks = getFinalBlockList(blocks);
             }
-            catch (Exception e) { Console.WriteLine("getFinalBlockList:" + e.Message); }
+            catch (Exception e) { Console.WriteLine("getFinalBlockList:" + e.Message);
+            CLog.error("获得最终分段错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 mergeReading(finalBlocks);
             }
-            catch (Exception e) { Console.WriteLine("mergeReading:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("mergeReading:"+e.Message);
+            CLog.error("合并阅读理解错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 addSeqToBlock(finalBlocks, false);
             }
-            catch (Exception e) { Console.WriteLine("addSeqToBlock:" + e.Message); }
+            catch (Exception e) { Console.WriteLine("addSeqToBlock:" + e.Message);
+            CLog.error("添加题号错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 answertable = getAnswer(finalBlocks);
             }
-            catch (Exception e) { Console.WriteLine("getAnswer:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("getAnswer:"+e.Message);
+            CLog.error("找真题答案错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 matchAnswer(finalBlocks, answertable);
             }
-            catch (Exception e) { Console.WriteLine("matchAnswer:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("matchAnswer:"+e.Message);
+            CLog.error("匹配题目答案错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 optionTable = getOptionTable(finalBlocks, answertable);
@@ -152,13 +172,17 @@ namespace CutPaper.src.cutpaper
             {
                 addSeqToBlock(blocks, true);
             }
-            catch (Exception e) { Console.WriteLine("addSeqToBlock:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("addSeqToBlock:"+e.Message);
+            CLog.error("添加题号错误：" + e.Message + "   -- " + e.StackTrace);
+            }
             try
             {
                 fillWithAnswer(blocks, optionTable, answertable);
                 fillWithAnswer(finalBlocks, optionTable, answertable);
             }
-            catch (Exception e) { Console.WriteLine("fillWithAnswer:"+e.Message); }
+            catch (Exception e) { Console.WriteLine("fillWithAnswer:"+e.Message);
+            CLog.error("过滤答案错误：" + e.Message + "   -- " + e.StackTrace);
+            }
            /* try
             {
                 printPaperFilledWithAnswer(finalBlocks, outpath + "_填入答案后的试卷.txt");

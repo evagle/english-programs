@@ -205,7 +205,7 @@ namespace PaperReorganization.src.main.model
             for (int i = 0; i < Math.Min(n, grammars.Count); i++) {  
                 this.grammarScore += grammars[i].Pattern.Length;
             }
-            CLog.debug(this.text.Substring(0, 30) + "\r\n" + wordsCount.ToString() + "\t" + this.aveSentenceLen.ToString() + "\t" + this.newWordsRate.ToString() + "\t" + this.aveNewWordsFriquence.ToString()); 
+            CLog.debug(this.text.Substring(0, Math.Min(30, this.text.Length)) + "\r\n" + wordsCount.ToString() + "\t" + this.aveSentenceLen.ToString() + "\t" + this.newWordsRate.ToString() + "\t" + this.aveNewWordsFriquence.ToString()); 
 
         }
 

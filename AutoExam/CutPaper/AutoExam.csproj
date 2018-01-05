@@ -78,8 +78,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="src\autoexam\Block.cs" />
-    <Compile Include="src\autoexam\CutPapers.cs" />
+    <Compile Include="src\Block.cs" />
+    <Compile Include="src\CLog.cs" />
+    <Compile Include="src\CutPapers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

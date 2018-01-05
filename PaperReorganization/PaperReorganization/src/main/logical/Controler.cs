@@ -47,10 +47,13 @@ namespace PaperReorganization.src.main.logical
                 string suffix = fileName.Substring(pos, fileName.Length - pos);
                 string prefix = files[i].Name.Substring(0,2);
                 int pos1 = files[i].Name.LastIndexOf(".");
-                if (prefix == "题型") { 
+                string[] parts = files[i].Name.Split(new char[] { '-', '.'});
+
+                if (parts.Length > 0 && prefix == "题型")
+                { 
                     List<Paragraph> paragraphs = new List<Paragraph>();
                     List<Sentence> sentences = new List<Sentence>();
-                    int type = Convert.ToInt32(files[i].Name.Substring(2,pos1-2));
+                    int type = Convert.ToInt32(parts[0].Substring(2));
                     new PrepareSentences(fileName, paragraphs, sentences, type);
 
                     paragraphs.Sort(delegate(Paragraph p1, Paragraph p2) { return p1.AveSentenceLen.CompareTo(p2.AveSentenceLen); });
@@ -84,7 +87,27 @@ namespace PaperReorganization.src.main.logical
                     if (paragraphs.Count > 0) {
                         this.paperTypeAverageWordsCount.Add(type, count / paragraphs.Count);
                     }
-                   
+
+                    string fileRank = Config.outPath + "题型" + type.ToString() + "排行榜.csv";
+                    StreamWriter writer = new StreamWriter(fileRank, false, Encoding.UTF8);
+                    writer.WriteLine("题目概要,平均句长,平均句长排名,平均生词词频,平均生词词频排名,"+
+                        "净生词率,净生词率排名,语法得分,语法排名,最终得分,最终排名");
+                    for (int k = 0; k < paragraphs.Count; k++)
+                    {
+                        Paragraph p = paragraphs[k];
+                        string text = p.Text.Substring(0, Math.Min(30, p.Text.Length)).Replace("\r\n", "").Replace("\n","");
+                        text = text.Replace(",", "");
+                        text = text.Replace("\r", "");
+                        text = text.Replace("\n", "");
+                        text += "," + p.AveSentenceLen.ToString() + "," + p.aveSentenceLenRank.ToString() + "," +
+                            p.AveNewWordsFriquence.ToString() + "," + p.aveNewWordsFriquenceRank.ToString() + "," +
+                            p.NewWordsRate.ToString() + "," + p.newWordsRateRank.ToString() + "," +
+                            p.GrammarScore.ToString() + "," + p.grammarScoreRank.ToString() + "," +
+                            p.FinalScore.ToString() + "," + (k + 1).ToString();
+                        writer.WriteLine(text);
+                    }
+                    writer.Close();
+
                     paragraphTable.Add(type, paragraphs);
                 }
             }
